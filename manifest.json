@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "DWAO AI — Accessibility Suite v2",
+  "version": "5.2.0",
+  "description": "Full WCAG 2.2 audit engine with 56+ automated checkpoints, manual testing tools, eyedropper contrast, screen reader, focus order, colour blindness simulation, keyboard trap detection, and one-click reports.",
+  "permissions": ["activeTab", "tabs", "scripting", "storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": { "service_worker": "background.js" },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
