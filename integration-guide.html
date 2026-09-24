@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DWAO Accessibility Widget — React Integration Guide</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 11pt;
+      color: #111;
+      max-width: 750px;
+      margin: 48px auto;
+      line-height: 1.6;
+    }
+    h1 {
+      font-size: 22pt;
+      font-weight: 700;
+      color: #1a1a1a;
+      border-bottom: 2px solid #663db3;
+      padding-bottom: 8px;
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 15pt;
+      font-weight: 700;
+      color: #663db3;
+      margin-top: 36px;
+      margin-bottom: 8px;
+    }
+    h3 {
+      font-size: 12pt;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-top: 24px;
+      margin-bottom: 6px;
+    }
+    p {
+      margin: 8px 0;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 16px 0;
+      font-size: 10pt;
+    }
+    th {
+      background-color: #663db3;
+      color: #fff;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td {
+      background-color: #f5f0ff;
+    }
+    pre {
+      background-color: #f4f4f4;
+      border-left: 4px solid #663db3;
+      padding: 14px 16px;
+      font-family: "Courier New", monospace;
+      font-size: 9.5pt;
+      overflow-x: auto;
+      margin: 12px 0;
+      white-space: pre;
+    }
+    code {
+      background-color: #f0ecff;
+      font-family: "Courier New", monospace;
+      font-size: 9.5pt;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    blockquote {
+      border-left: 4px solid #663db3;
+      background: #f5f0ff;
+      margin: 12px 0;
+      padding: 10px 16px;
+      color: #333;
+      font-style: italic;
+    }
+    .step-number {
+      display: inline-block;
+      background: #663db3;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      text-align: center;
+      line-height: 26px;
+      margin-right: 8px;
+      font-size: 11pt;
+    }
+    .section-divider {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 32px 0;
+    }
+    .note {
+      background: #fff8e1;
+      border-left: 4px solid #f9a825;
+      padding: 10px 16px;
+      margin: 10px 0;
+      font-size: 10pt;
+    }
+    .summary-table th {
+      background-color: #1a1a1a;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>DWAO Accessibility Widget<br>React Integration Guide</h1>
+  <p>Integration Guide — v1.0.0</p>
+  <p>
+    This guide explains how to integrate the <strong>DWAO Accessibility Widget</strong> (<code>acc.js</code>)
+    into a React application. The widget adds a fully featured accessibility panel to your site —
+    text size, contrast, dyslexia font, reading line, cursor size, and more.
+    It has <strong>no npm dependencies</strong> and requires no build-step changes.
+  </p>
+
+  <hr class="section-divider" />
+
+  <h2>Files Required</h2>
+
+  <table>
+    <tr>
+      <th>File</th>
+      <th>Purpose</th>
+    </tr>
+    <tr>
+      <td><code>acc.js</code></td>
+      <td>The widget script — host it in your project's <code>public/</code> folder and reference it in <code>index.html</code></td>
+    </tr>
+    <tr>
+      <td><code>dwao-accessibility.d.ts</code></td>
+      <td>TypeScript declaration file — augments <code>Window</code> with the <code>DWAOAccessibility</code> global. Required for TypeScript projects; optional for plain JavaScript.</td>
+    </tr>
+  </table>
+
+  <hr class="section-divider" />
+
+  <h2>Project Structure — Files to Add or Modify</h2>
+
+  <pre>public/
+  acc.js                              &larr; widget script (static asset)
+
+src/
+  dwao-accessibility.d.ts            &larr; TypeScript types (TypeScript projects only)</pre>
+
+  <hr class="section-divider" />
+
+  <h2>Integration Steps</h2>
+
+  <h3><span class="step-number">1</span>Add the Toggle Button to <code>index.html</code></h3>
+
+  <p>In your project's <code>index.html</code>, add the following markup inside <code>&lt;body&gt;</code>, just before <code>&lt;/body&gt;</code>:</p>
+
+  <pre>&lt;div class="accessibility-div"&gt;
+  &lt;button id="accessibilityToggleBtn"&gt;&lt;/button&gt;
+&lt;/div&gt;</pre>
+
+  <blockquote>
+    The widget automatically populates the button with an icon and label. Do <strong>not</strong> put any text inside the button manually.
+  </blockquote>
+
+  <h3><span class="step-number">2</span>Load the Script in <code>index.html</code></h3>
+
+  <p>Add the script tag <strong>after</strong> the button div, before <code>&lt;/body&gt;</code>:</p>
+
+  <pre>&lt;script src="acc.js" &gt;&lt;/script&gt;</pre>
+
+  <p><strong>Available <code>data-*</code> configuration attributes</strong> (all optional):</p>
+
+  <table>
+    <tr>
+      <th>Attribute</th>
+      <th>Values</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td><code>data-position</code></td>
+      <td><code>bottom-left</code>, <code>bottom-right</code>, <code>top-left</code>, <code>top-right</code></td>
+      <td><code>bottom-left</code></td>
+      <td>Position of the toggle button</td>
+    </tr>
+    <tr>
+      <td><code>data-theme</code></td>
+      <td><code>purple</code>, <code>blue</code>, <code>green</code></td>
+      <td><code>purple</code></td>
+      <td>Widget color theme</td>
+    </tr>
+    <tr>
+      <td><code>data-brand-color</code></td>
+      <td>Any hex color e.g. <code>#e63946</code></td>
+      <td>—</td>
+      <td>Overrides the theme color with a custom brand color</td>
+    </tr>
+    <tr>
+      <td><code>data-lang</code></td>
+      <td><code>en</code></td>
+      <td><code>en</code></td>
+      <td>Widget UI language</td>
+    </tr>
+  </table>
+
+  <p>Your complete <code>index.html</code> should look like this:</p>
+
+  <pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8" /&gt;
+  &lt;title&gt;Your App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id="root"&gt;&lt;/div&gt;
+
+  &lt;div class="accessibility-div"&gt;
+    &lt;button id="accessibilityToggleBtn"&gt;&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;script src="/public/acc.js" data-position="bottom-left" data-theme="pnb"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+  <blockquote>
+    <strong>Note:</strong> Calling of accessibility file depends on project structure — it may differ from project to project, so link the file according to your project structure.
+  </blockquote>
+
+  <h3><span class="step-number">3</span>Add TypeScript Types <em style="font-weight:400;color:#555;">(TypeScript projects only)</em></h3>
+
+  <p>
+    Copy <code>dwao-accessibility.d.ts</code> into your <code>src/</code> folder (or any directory covered by your
+    <code>tsconfig.json</code> <code>include</code> paths). No import is needed — the <code>declare global</code>
+    block automatically augments the <code>Window</code> interface project-wide, so
+    <code>window.DWAOAccessibility</code> is fully typed everywhere.
+  </p>
+
+  <pre>// dwao-accessibility.d.ts — copy to src/
+declare global {
+  interface Window {
+    DWAOAccessibility: {
+      version: string;
+      reset: () => void;
+      reinit: () => void;
+    };
+  }
+}
+export {};</pre>
+
+  <div class="note">
+    If you prefer not to copy the file, you can add an inline cast in your component instead:<br>
+    <code>(window as any).DWAOAccessibility?.reinit()</code>
+  </div>
+
+  <h3><span class="step-number">4</span>Reinitialize on Route Changes</h3>
+
+  <p>
+    React Router replaces page content without a full browser reload.
+    The widget must be told to re-scan the DOM after each navigation to work correctly on new pages.
+  </p>
+
+  <p>Create a new file <code>src/components/AccessibilityReinit.jsx</code> (or <code>.tsx</code> for TypeScript):</p>
+
+  <pre>// src/components/AccessibilityReinit.jsx (or .tsx)
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+export default function AccessibilityReinit() {
+  const location = useLocation();
+
+  useEffect(() => {
+    requestIdleCallback(() => {
+      if (window.DWAOAccessibility) window.DWAOAccessibility.reinit();
+    });
+  }, [location.pathname]);
+
+  return null;
+}</pre>
+
+  <p>Then render it inside <code>&lt;BrowserRouter&gt;</code> in your root <code>src/App.jsx</code>:</p>
+
+  <pre>// src/App.jsx
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AccessibilityReinit from "./components/AccessibilityReinit";
+
+export default function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;AccessibilityReinit /&gt;
+      {/* your routes */}
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/about" element={&lt;About /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</pre>
+
+  <hr class="section-divider" />
+
+  <h2>Where Changes Are Required — Summary</h2>
+
+  <table class="summary-table">
+    <tr>
+      <th>File</th>
+      <th>Change Required</th>
+    </tr>
+    <tr>
+      <td><code>index.html</code></td>
+      <td>Add the <code>&lt;div class="accessibility-div"&gt;</code> button markup</td>
+    </tr>
+    <tr>
+      <td><code>index.html</code></td>
+      <td>Add the <code>&lt;script src="acc.js" ...&gt;</code> tag with config attributes</td>
+    </tr>
+    <tr>
+      <td><code>src/dwao-accessibility.d.ts</code></td>
+      <td>Copy from the kit — TypeScript type declaration for <code>window.DWAOAccessibility</code> (TypeScript projects only)</td>
+    </tr>
+    <tr>
+      <td><code>src/components/AccessibilityReinit.jsx</code> / <code>.tsx</code></td>
+      <td>Create this new component (see Step 4)</td>
+    </tr>
+    <tr>
+      <td><code>src/App.jsx</code> / <code>.tsx</code></td>
+      <td>Import and render <code>&lt;AccessibilityReinit /&gt;</code> inside <code>&lt;BrowserRouter&gt;</code></td>
+    </tr>
+  </table>
+
+  <hr class="section-divider" />
+
+  <h2>Note</h2>
+
+  <div class="note">
+    The button <code>id="accessibilityToggleBtn"</code> must be unique on the page. Do not duplicate it.
+  </div>
+
+  <hr class="section-divider" />
+
+  <p>For technical support or questions, contact: <a href="mailto:jay.vyas@techchefz.com">jay.vyas@techchefz.com</a></p>
+  <p>© 2026 DWAO. All rights reserved. — DWAO Accessibility Widget v1.0.0</p>
+
+</body>
+</html>
