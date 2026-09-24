@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DWAO Accessibility Widget — Architecture & Security</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Inter", "Segoe UI", Arial, sans-serif;
+      background: #f4f6fa;
+      color: #1a1a2e;
+      padding: 40px 24px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #007abc;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 40px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #007abc;
+    }
+    .section { margin-bottom: 48px; }
+
+    /* ── Architecture card grid ── */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .layer-card {
+      background: #fff;
+      border-radius: 12px;
+      border-left: 5px solid #007abc;
+      padding: 18px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    .layer-card.color-green  { border-color: #00875a; }
+    .layer-card.color-purple { border-color: #663db3; }
+    .layer-card.color-orange { border-color: #e07b00; }
+    .layer-card.color-teal   { border-color: #009999; }
+    .layer-card.color-pink   { border-color: #c0437a; }
+    .layer-card.color-gray   { border-color: #666; }
+    .layer-number {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #007abc;
+      margin-bottom: 6px;
+    }
+    .layer-card.color-green  .layer-number { color: #00875a; }
+    .layer-card.color-purple .layer-number { color: #663db3; }
+    .layer-card.color-orange .layer-number { color: #e07b00; }
+    .layer-card.color-teal   .layer-number { color: #009999; }
+    .layer-card.color-pink   .layer-number { color: #c0437a; }
+    .layer-card.color-gray   .layer-number { color: #666; }
+    .layer-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #1a1a2e;
+    }
+    .layer-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .layer-items li {
+      font-size: 12.5px;
+      color: #444;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .layer-items li::before {
+      content: "→";
+      color: #007abc;
+      font-weight: bold;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .layer-card.color-green  .layer-items li::before { color: #00875a; }
+    .layer-card.color-purple .layer-items li::before { color: #663db3; }
+    .layer-card.color-orange .layer-items li::before { color: #e07b00; }
+    .layer-card.color-teal   .layer-items li::before { color: #009999; }
+    .layer-card.color-pink   .layer-items li::before { color: #c0437a; }
+    .layer-card.color-gray   .layer-items li::before { color: #666; }
+
+    /* ── Data Flow ── */
+    .mermaid-wrap {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      overflow-x: auto;
+    }
+
+    /* ── Security Table ── */
+    .sec-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    .sec-table th {
+      background: #007abc;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 16px;
+      text-align: left;
+    }
+    .sec-table td {
+      padding: 12px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+      color: #333;
+    }
+    .sec-table tr:last-child td { border-bottom: none; }
+    .sec-table tr:hover td { background: #f8f9ff; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge.high   { background: #ffeaea; color: #c0392b; }
+    .badge.medium { background: #fff3e0; color: #e07b00; }
+    .badge.low    { background: #fffde7; color: #9a7d00; }
+    .badge.info   { background: #e8f4fd; color: #007abc; }
+    code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: "Fira Code", monospace;
+      font-size: 12px;
+      color: #c0437a;
+    }
+
+    /* ── Features matrix ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 900px) {
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .feature-group {
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .feature-group-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #007abc;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e8f4fd;
+    }
+    .feature-tag {
+      display: inline-block;
+      background: #f0f5ff;
+      color: #1a3a8f;
+      border-radius: 4px;
+      font-size: 11.5px;
+      padding: 3px 8px;
+      margin: 3px 2px;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>DWAO Accessibility Widget v2.0.0</h1>
+  <p class="subtitle">Architecture & Security Review — <code>dwao-a11y-widget.js</code> · 2248 lines · Zero dependencies</p>
+
+  <!-- ── LAYER ARCHITECTURE ── -->
+  <div class="section">
+    <div class="section-title">Architecture Layers</div>
+    <div class="arch-grid">
+
+      <div class="layer-card">
+        <div class="layer-number">Layer 1</div>
+        <div class="layer-title">Vanilla JS &amp; CSS</div>
+        <ul class="layer-items">
+          <li>IIFE wrapper — no global leakage</li>
+          <li>Read <code>data-*</code> attrs from <code>&lt;script&gt;</code> tag</li>
+          <li>Resolve theme / brand color → <code>BRAND</code></li>
+          <li>Inject CSS into <code>&lt;head&gt;</code></li>
+          <li>Apply position variant CSS</li>
+        </ul>
+      </div>
+
+      <div class="layer-card color-green">
+        <div class="layer-number">Layer 2</div>
+        <div class="layer-title">Data & State</div>
+        <ul class="layer-items">
+          <li>Inline SVG icon map (<code>ICONS{}</code>)</li>
+          <li>Section / card config (<code>accessibilitySections[]</code>)</li>
+          <li>Feature dispatch map (<code>optionActions{}</code>)</li>
+          <li>Module-level closure state flags</li>
+          <li>CSS class name arrays (font, line, letter, align)</li>
+        </ul>
+      </div>
+
+      <div class="layer-card color-purple">
+        <div class="layer-number">Layer 3</div>
+        <div class="layer-title">UI Construction</div>
+        <ul class="layer-items">
+          <li><code>createEl()</code> DOM utility</li>
+          <li><code>svgIcon()</code> icon builder</li>
+          <li><code>createOptionCard()</code> — 24 feature cards</li>
+          <li><code>createAccordionSection()</code> — 4 sections</li>
+          <li><code>buildAccessibilityPanel()</code></li>
+          <li><code>buildScreenReaderPanel()</code></li>
+        </ul>
+      </div>
+
+      <div class="layer-card color-orange">
+        <div class="layer-number">Layer 4</div>
+        <div class="layer-title">Feature Engine</div>
+        <ul class="layer-items">
+          <li>Typography (font size, letter/line spacing, align, dyslexia)</li>
+          <li>Visual / Color (contrast, invert, grayscale, saturation)</li>
+          <li>Navigation (cursor, links, buttons, skip link, reading line)</li>
+          <li>Screen Reader (Web Speech API — hover-to-speak)</li>
+          <li>Text Magnifier (floating lens overlay)</li>
+          <li>Media Control (audio/video/YouTube/GIF pause)</li>
+          <li>Page Structure (heading nav panel)</li>
+          <li>Virtual Keyboard (draggable, injects into active input)</li>
+        </ul>
+      </div>
+
+      <div class="layer-card color-teal">
+        <div class="layer-number">Layer 5</div>
+        <div class="layer-title">Event &amp; Interaction</div>
+        <ul class="layer-items">
+          <li>Accordion expand/collapse</li>
+          <li>Card click → <code>optionActions</code> dispatch</li>
+          <li>Keyboard nav (↑↓ Arrow, Enter, Space, Escape)</li>
+          <li>Click-outside to close panel</li>
+          <li>ARIA live region announcements</li>
+          <li>Auto-label unlabelled form fields</li>
+          <li>Reset All → <code>resetAllAccessibility()</code></li>
+        </ul>
+      </div>
+
+      <div class="layer-card color-pink">
+        <div class="layer-number">Layer 6</div>
+        <div class="layer-title">Persistence</div>
+        <ul class="layer-items">
+          <li>Key: <code>accessibility_local_settings</code></li>
+          <li>Value: JSON array of active <code>datakey</code> strings</li>
+          <li>Write: on every card click (via <code>requestIdleCallback</code>)</li>
+          <li>Read: on init — replays clicks to restore state</li>
+          <li>Clear: on Reset All</li>
+        </ul>
+      </div>
+
+      <div class="layer-card color-gray">
+        <div class="layer-number">Public API</div>
+        <div class="layer-title">window.DWAOAccessibility</div>
+        <ul class="layer-items">
+          <li><code>.version</code> — "2.0.0"</li>
+          <li><code>.reset()</code> — programmatic reset all</li>
+          <li>Everything else stays inside IIFE closure</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── DATA FLOW ── -->
+  <div class="section">
+    <div class="section-title">  DWAO Accessibility Widget v2.0.0 — Data Flow Diagram</div>
+    <div class="mermaid-wrap">
+            <div class="section-title" >  DWAO Accessibility Widget v2.0.0 — Data Flow Diagram</div>
+
+      <div class="mermaid">
+        
+flowchart TD
+    A["&lt;script src='dwao-a11y-widget.js'\n data-position='bottom-left'\n data-theme='pnb'\n data-brand-color=''&gt;"]:::input
+
+    A --> B["Vanilla JS &amp; CSS\nRead data-* → CONFIG\nInject CSS into &lt;head&gt;"]:::boot
+
+    B --> C["Build UI\nbuildAccessibilityPanel()\nbuildScreenReaderPanel()"]:::ui
+
+    C --> D["Attach Events\ninitAccessibilityHandlers()"]:::event
+
+    D --> E{User clicks\ncard}:::decision
+
+    E -->|"Step-based\n(Font, Spacing, Align)"| F["Three-step toggle\nAdd body class\ne.g. dwas-fs-level-2"]:::feature
+
+    E -->|"Toggle-based\n(Contrast, Cursor…)"| G["Toggle class/style\non &lt;html&gt; or &lt;body&gt;"]:::feature
+
+    E -->|"Screen Reader"| H["Web Speech API\nspeechSynthesis.speak()\ndocument.body.innerText"]:::feature
+
+    E -->|"Virtual Keyboard"| I["Build draggable UI\ninsertToActiveInput()\n→ writes to focused field"]:::feature
+
+    E -->|"Page Structure"| J["Scan h1–h6\nBuild nav list\nSmooth scroll on click"]:::feature
+
+    E -->|"Text Magnifier"| K["Attach mouseenter/move\nShow floating lens div\ngetDirectText() via textContent"]:::feature
+
+    F & G & H & I & J & K --> L["Persist active keys\nlocalStorage\n'accessibility_local_settings'"]:::persist
+
+    L --> M["On next page load\nRead localStorage\nReplay .click() on cards"]:::persist
+
+    classDef input  fill:#e8f4fd,stroke:#007abc,color:#1a1a2e
+    classDef boot   fill:#e8f0ff,stroke:#663db3,color:#1a1a2e
+    classDef ui     fill:#e8fff4,stroke:#00875a,color:#1a1a2e
+    classDef event  fill:#fff3e0,stroke:#e07b00,color:#1a1a2e
+    classDef decision fill:#fff,stroke:#007abc,color:#1a1a2e
+    classDef feature fill:#f0f0f0,stroke:#555,color:#1a1a2e
+    classDef persist fill:#fff0f6,stroke:#c0437a,color:#1a1a2e
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FEATURE MATRIX ── -->
+  <div class="section">
+    <div class="section-title">Feature Map — 24 Accessibility Controls</div>
+    <div class="feature-grid">
+      <div class="feature-group">
+        <div class="feature-group-title">Profiles</div>
+        <span class="feature-tag">Blindness</span>
+        <span class="feature-tag">Visually Impaired</span>
+        <span class="feature-tag">Cognitive</span>
+        <span class="feature-tag">Epilepsy</span>
+        <span class="feature-tag">Dyslexia</span>
+        <span class="feature-tag">ADHD</span>
+      </div>
+      <div class="feature-group">
+        <div class="feature-group-title">Content</div>
+        <span class="feature-tag">Text Size</span>
+        <span class="feature-tag">Hide/Show Images</span>
+        <span class="feature-tag">Line Spacing</span>
+        <span class="feature-tag">Letter Spacing</span>
+        <span class="feature-tag">Text Zoom</span>
+        <span class="feature-tag">Image Description</span>
+        <span class="feature-tag">Skip Link</span>
+        <span class="feature-tag">Pause Media</span>
+        <span class="feature-tag">Text Alignment</span>
+      </div>
+      <div class="feature-group">
+        <div class="feature-group-title">Color &amp; Contrast</div>
+        <span class="feature-tag">High Contrast</span>
+        <span class="feature-tag">Invert Colors</span>
+        <span class="feature-tag">Grayscale</span>
+        <span class="feature-tag">Low Saturation</span>
+      </div>
+      <div class="feature-group">
+        <div class="feature-group-title">Navigation</div>
+        <span class="feature-tag">Reading Line</span>
+        <span class="feature-tag">Highlight Links</span>
+        <span class="feature-tag">Big Cursor</span>
+        <span class="feature-tag">Enlarge Buttons</span>
+        <span class="feature-tag">Read Page</span>
+        <span class="feature-tag">Page Structure</span>
+        <span class="feature-tag">Virtual Keyboard</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECURITY ── -->
+  <div class="section">
+    <div class="section-title">Security Findings</div>
+    <table class="sec-table">
+      <thead>
+        <tr>
+          <th>Severity</th>
+          <th>Finding</th>
+          <th>Location</th>
+          <th>Detail</th>
+          <th>Fix</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge high">High</span></td>
+          <td>XSS via <code>img.alt</code></td>
+          <td><code>toggleAltText()</code><br/>Line 1224</td>
+          <td><code>tooltip.innerHTML = img.alt</code> — if any image has a crafted <code>alt</code> attribute (e.g. via CMS), HTML executes</td>
+          <td>Replace with <code>tooltip.textContent = img.alt</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge medium">Medium</span></td>
+          <td><code>getPageStructure()</code><br/>Line 1756</td>
+          <td>Halts JS execution when DevTools is open; functional regression + exposes internals</td>
+        </tr>
+        <tr>
+          <td><span class="badge low">Low</span></td>
+          <td>Global namespace pollution</td>
+          <td>Multiple locations</td>
+          <td><code>window._dwaoMouseOver</code>, <code>window._magnifierListeners</code>, <code>window.magnifierEnabled</code> leak onto <code>window</code></td>
+          <td>Move into IIFE closure or namespace under <code>window.DWAOAccessibility._internal</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge low">Low</span></td>
+          <td>Brand color CSS injection</td>
+          <td>Vanilla JS &amp; CSS<br/>Lines 186–190</td>
+          <td><code>data-brand-color</code> is directly interpolated into CSS strings without validation</td>
+          <td>Validate value matches a safe CSS color pattern (hex/rgb/named) before use</td>
+        </tr>
+        <tr>
+          <td><span class="badge low">Low</span></td>
+          <td>localStorage replay via <code>.click()</code></td>
+          <td><code>initAccessibilityHandlers</code><br/>Line 2229</td>
+          <td>Persisted state is restored by simulating click events — including <code>speechSynthesis.speak()</code>, which requires a real user gesture</td>
+          <td>Call feature functions directly instead of simulating clicks</td>
+        </tr>
+        <tr>
+          <td><span class="badge info">Info</span></td>
+          <td><code>innerHTML</code> footgun in <code>createEl()</code></td>
+          <td><code>createEl()</code><br/>Line 128</td>
+          <td>All callers currently pass static strings; no active XSS path, but any future caller passing user data is unsafe by default</td>
+          <td>Add a comment/lint rule; consider a separate <code>createElSafe()</code> that only accepts <code>textContent</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    DWAO Accessibility Widget v2.0.0 &nbsp;·&nbsp; Architecture &amp; Security Review
+  </footer>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: "neutral", flowchart: { curve: "basis" } });
+  </script>
+</body>
+</html>
