@@ -47,7 +47,10 @@
     <a href="#media">Media</a>
     <a href="#forms">Forms</a>
     <a href="#table">Table</a>
+    <a href="#autofix">Auto-fixes</a>
   </nav>
+
+  <main>
 
   <!-- Hero -->
   <h1>DWAO Accessibility Widget — Test Page</h1>
@@ -145,32 +148,65 @@
         <tr><td>Reading Line</td><td>Navigation</td><td>Active</td></tr>
         <tr><td>Big Cursor</td><td>Navigation</td><td>Active</td></tr>
         <tr><td>Pause Animations</td><td>Media</td><td>Active</td></tr>
-        <tr><td>Highlight Links</td><td>Content</td><td>Active</td></tr>
+        <tr><td>Highlight Links</td><td>Navigation</td><td>Active</td></tr>
+        <tr><td>Text Zoom (magnifier)</td><td>Content</td><td>Active</td></tr>
+        <tr><td>Read Page (text-to-speech)</td><td>Navigation</td><td>Active</td></tr>
+        <tr><td>Page Structure</td><td>Navigation</td><td>Active</td></tr>
+        <tr><td>Virtual Keyboard</td><td>Navigation</td><td>Active</td></tr>
+        <tr><td>Dyslexia / ADHD profiles</td><td>Profile</td><td>Active</td></tr>
       </tbody>
     </table>
   </section>
 
+  <!-- Automatic fixes & security regression checks -->
+  <section id="autofix">
+    <h2>Automatic Fixes &amp; Security Checks</h2>
+    <p>Each item below is deliberately broken. Inspect it in DevTools after the page loads to confirm the widget repaired it.</p>
+
+    <div class="card">
+      <h3>Untitled iframe</h3>
+      <p>Expected: the widget adds a <code>title</code> starting "Embedded content".</p>
+      <iframe srcdoc="&lt;p style='font-family:sans-serif'&gt;Embedded content with no title&lt;/p&gt;" width="400" height="80"></iframe>
+    </div>
+
+    <div class="card">
+      <h3>Fields without an aria-label</h3>
+      <p>Expected: <code>aria-label="promo_code"</code> is added to the unlabelled field below.</p>
+      <div class="form-group">
+        <input type="text" name="promo_code" placeholder="Promo code (no label)">
+      </div>
+      <p>Expected: <code>onpaste</code> is removed from this password field so you can paste into it. With Text Zoom on, hovering it must <strong>not</strong> show what you typed (fix F-5).</p>
+      <div class="form-group">
+        <label for="pwd">Password</label>
+        <input type="password" id="pwd" name="password" placeholder="Password" onpaste="return false">
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>&lt;img src=x onerror=alert('F-2 regression')&gt;</h3>
+      <p>The heading above is plain text that looks like HTML. Open <em>Page Structure</em>: it must be listed as text and no alert may appear (fix F-2).</p>
+      <p>Turn on <em>Image Description</em> and hover the image below: the tooltip must show its alt text literally, with no alert (fix F-1).</p>
+      <img src="https://picsum.photos/300/200?random=3" alt="&lt;img src=x onerror=alert('F-1 regression')&gt;">
+    </div>
+
+    <div class="card">
+      <h3>Skip link, page language and zoom</h3>
+      <p>Press <kbd>Tab</kbd> once after loading: a "Skip to main content" link should appear and move focus to <code>&lt;main&gt;</code>. In the console, <code>DWAOAccessibility.version</code> should print "2.0.0".</p>
+    </div>
+  </section>
+
+  </main>
+
   <footer style="margin-top:40px; padding-top:20px; border-top:1px solid #ddd; color:#999; font-size:0.85rem;">
-    <p>DWAO Accessibility Widget v1.0.0 — Test Page — © 2026 DWAO / TechChefz</p>
+    <p>DWAO Accessibility Widget v2.0.0 — Test Page — © 2026 DWAO / TechChefz</p>
   </footer>
 
 </div>
 
 <!-- Accessibility Widget Integration -->
 <div class="accessibility-div">
-  <button id="accessibilityToggleBtn" aria-label="Open Accessibility Panel">Accessibility</button>
+  <button id="accessibilityToggleBtn"></button>
 </div>
 <script src="dwao-a11y-widget.js" data-position="bottom-left"></script>
-<style>
-   /* .accessibility-panel {
-        width: 430px !important;
-        max-width: calc(100vw - 24px) !important;
-        box-sizing: border-box !important;
-background-color: red !important;
-        .reset-all {
-            color: #007abc !important;
-        }
-    } */
-</style>
 </body>
 </html>
