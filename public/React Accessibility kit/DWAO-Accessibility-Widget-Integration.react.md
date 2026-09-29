@@ -1,31 +1,32 @@
 # DWAO Accessibility Widget — React Integration Guide
 
-<p>Integration Guide — v1.0.0
-</p>
+Integration Guide — v2.0.0
 
 ## What It Is
 
-A self-contained, zero-dependency JavaScript widget (`acc.js`) that adds an accessibility panel to any React app — text size, contrast, dyslexia font, reading line, cursor size, and more.
+A self-contained, zero-dependency JavaScript widget (`init.js`) that adds an accessibility panel to any React app (Vite or Create React App): text size, contrast, dyslexia font, reading line, text-to-speech and more. It needs no npm packages and no build configuration changes.
 
 ---
 
-## Files Required
+## Files in the Kit
 
-| File                      | Purpose                                                                                                                     |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `acc.js`                  | The widget script — host it in your project's `public/` folder and reference it in `index.html`                            |
-| `dwao-accessibility.d.ts` | TypeScript declaration file — augments `Window` with the `DWAOAccessibility` global. Required for TypeScript projects only. |
+| File                      | Purpose                                                                            |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| `init.js`                 | The widget script. Copy it into your project's `public/` folder.                   |
+| `dwao-accessibility.d.ts` | TypeScript declaration for the `window.DWAOAccessibility` global. TypeScript only. |
 
 ---
 
 ## Project Structure — Files to Add or Modify
 
 ```
+index.html                                ← button markup + script tag (Vite)
 public/
-  acc.js                              ← widget script (static asset)
-
+  init.js                                 ← widget script (static asset)
 src/
-  dwao-accessibility.d.ts            ← TypeScript types (TypeScript projects only)
+  dwao-accessibility.d.ts                 ← TypeScript types (TypeScript only)
+  components/AccessibilityReinit.jsx      ← new component (or .tsx)
+  App.jsx                                 ← render <AccessibilityReinit />
 ```
 
 ---
@@ -34,42 +35,38 @@ src/
 
 ### Step 1 — Add the Toggle Button to `index.html`
 
-In your project's `index.html`, add this inside `<body>` before `</body>`:
+Vite: `index.html` in the project root. Create React App: `public/index.html`. Add this inside `<body>`, **outside** the React root:
 
 ```html
 <div class="accessibility-div">
   <button id="accessibilityToggleBtn"></button>
 </div>
-````
+```
 
-> The widget auto-populates the button content (icon + label). Do not put any text inside the button.
+> Leave the button empty. The widget adds the icon and the "Accessibility" label.
 
 ---
 
 ### Step 2 — Load the Script in `index.html`
 
+Add the script tag **after** the button container, before `</body>`. Files in `public/` are served from the site root, so do **not** include `/public` in the path.
+
 ```html
-<script src="acc.js" data-position="bottom-left"></script>
+<!-- Vite -->
+<script src="/init.js" data-position="bottom-left"></script>
+
+<!-- Create React App -->
+<script src="%PUBLIC_URL%/init.js" data-position="bottom-left"></script>
 ```
 
-Place this **after** the button div, before `</body>`.
-
-**`data-*` configuration attributes** (all optional):
-
-| Attribute          | Values                                                 | Default       | Description            |
-| ------------------ | ------------------------------------------------------ | ------------- | ---------------------- |
-| `data-position`    | `bottom-left`, `bottom-right`, `top-left`, `top-right` | `bottom-left` | Toggle button position |
-| `data-theme`       | `purple`, `blue`, `green`                              | `purple`      | Widget color theme     |
-| `data-brand-color` | Any hex color e.g. `#e63946`                           | —             | Overrides theme color  |
-| `data-lang`        | `en`                                                   | `en`          | Widget UI language     |
-
-Your `index.html` should look like this:
+A complete Vite `index.html`:
 
 ```html
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8 />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Your App</title>
   </head>
   <body>
@@ -78,27 +75,26 @@ Your `index.html` should look like this:
     <div class="accessibility-div">
       <button id="accessibilityToggleBtn"></button>
     </div>
-    <script
-      src="/public/acc.js"
-      data-position="bottom-left"
-      data-theme="pnb"
-    ></script>
+
+    <script type="module" src="/src/main.jsx"></script>
+    <script src="/init.js" data-position="bottom-left" data-theme="pnb"></script>
   </body>
 </html>
 ```
-> Note :- Calling of accessibility file depends on project strucutre it may defer from project to project so link the file according to you project strucutre.
+
+> **Load it once, from `index.html`.** Do not inject the script from a component or `useEffect`. React StrictMode runs effects twice, and each load creates another panel. If your app is served from a sub-path, prefix the path to match (for example `/my-app/init.js`).
 
 ---
 
 ### Step 3 — Add TypeScript Types *(TypeScript projects only)*
 
-Copy `dwao-accessibility.d.ts` from the kit into your `src/` folder (or any directory covered by your `tsconfig.json` `include` paths). No import is needed — the `declare global` block automatically augments the `Window` interface project-wide.
+Copy `dwao-accessibility.d.ts` into `src/` (or any folder covered by your `tsconfig.json` `include`). No import is needed; the `declare global` block adds the type to `Window` across the project.
 
 ```ts
 // src/dwao-accessibility.d.ts
 declare global {
   interface Window {
-    DWAOAccessibility: {
+    DWAOAccessibility?: {
       version: string;
       reset: () => void;
       reinit: () => void;
@@ -108,18 +104,13 @@ declare global {
 export {};
 ```
 
-> **Why is this needed?** The widget is loaded via a `<script>` tag, so TypeScript never sees it. Without this file the compiler throws `Property 'DWAOAccessibility' does not exist on type 'Window & typeof globalThis'`. Plain JavaScript projects can skip this step entirely.
-
-If you prefer not to copy the file, you can use an inline cast instead:
-```ts
-(window as any).DWAOAccessibility?.reinit()
-```
+Without it the compiler reports `Property 'DWAOAccessibility' does not exist on type 'Window & typeof globalThis'`. Plain JavaScript projects skip this step.
 
 ---
 
-### Step 4 — Reinitialize on Route Changes
+### Step 4 — Re-initialise on Route Changes
 
-React Router replaces page content without a full reload, so the widget needs to re-scan on every navigation. Add this component to your project:
+React Router swaps page content without a reload, so the widget must re-scan the new page to re-apply active text-size, spacing and alignment settings.
 
 ```jsx
 // src/components/AccessibilityReinit.jsx (or .tsx)
@@ -130,16 +121,17 @@ export default function AccessibilityReinit() {
   const location = useLocation();
 
   useEffect(() => {
-    requestIdleCallback(() => {
-      if (window.DWAOAccessibility) window.DWAOAccessibility.reinit();
-    });
+    const run = () => window.DWAOAccessibility?.reinit();
+    // requestIdleCallback is missing in some browsers (e.g. Safari)
+    if ("requestIdleCallback" in window) requestIdleCallback(run);
+    else setTimeout(run, 1);
   }, [location.pathname]);
 
   return null;
 }
 ```
 
-Then render it inside `<BrowserRouter>` in your root `App.jsx` / `App.tsx`:
+Render it once inside `<BrowserRouter>`:
 
 ```jsx
 // src/App.jsx
@@ -150,7 +142,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <AccessibilityReinit />
-      {/* your routes */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -162,23 +153,71 @@ export default function App() {
 
 ---
 
+## Configuration Options
+
+Set these `data-*` attributes on the widget's script tag. All are optional.
+
+| Attribute          | Values                                                                              | Default       | Description                                                                |
+| ------------------ | ----------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
+| `data-position`    | `bottom-left`, `bottom-right`, `top-left`, `top-right`                              | `bottom-left` | Where the button and panel appear                                          |
+| `data-theme`       | `pnb` (#007abc), `purple` (#663db3), `blue` (#0073BB), `green` (#00875A)            | `pnb`         | Accent colour                                                              |
+| `data-brand-color` | Hex colour, e.g. `#e63946`                                                          | —             | Overrides `data-theme`. Non-hex values are ignored.                        |
+| `data-lang`        | `en`                                                                                | `en`          | Reserved. The panel is English-only in v2.0.0 and this has no effect.      |
+
+---
+
+## What the Widget Changes on Your Page
+
+On load, and for any DOM React renders later, the widget automatically:
+
+- copies each form field's `name` into `aria-label` when it has no `aria-label`. This includes fields that already have a `<label>`, so give fields meaningful names;
+- adds a `title` to untitled iframes;
+- removes `onpaste="return false"` from password fields (values are never read);
+- inserts a "Skip to main content" link targeting `<main>` (or the first `<h1>`) if none exists;
+- sets `<html lang>` if it is missing, and re-enables pinch-zoom in the viewport meta tag.
+
+---
+
+## Security, Privacy & CSP
+
+- No network requests, no cookies, no external fonts or images.
+- The only stored data is the visitor's selected options, in `localStorage` under `accessibility_local_settings`.
+- The widget injects `<style>` elements, so a Content Security Policy must allow `style-src 'self' 'unsafe-inline'`. Nothing else is required.
+
+---
+
+## JavaScript API
+
+```js
+window.DWAOAccessibility.version;   // "2.0.0"
+window.DWAOAccessibility.reset();   // turn off every accessibility setting
+window.DWAOAccessibility.reinit();  // re-scan the page after a route change
+```
+
+---
+
 ## Where Changes Are Required — Summary
 
-| File                                              | Change Required                                                                          |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `index.html`                                      | Add `<div class="accessibility-div"><button id="accessibilityToggleBtn"></button></div>` |
-| `index.html`                                      | Add `<script src="acc.js" data-position="..."></script>`                                 |
-| `src/dwao-accessibility.d.ts`                     | Copy from kit — TypeScript type declaration (TypeScript projects only, see Step 3)       |
-| `src/components/AccessibilityReinit.jsx` / `.tsx` | Create this new component (Step 4 above)                                                 |
-| `src/App.jsx` / `.tsx`                            | Import and render `<AccessibilityReinit />` inside `<BrowserRouter>`                     |
+| File                                     | Change                                                                  |
+| ---------------------------------------- | ----------------------------------------------------------------------- |
+| `public/init.js`                         | Copy from the kit                                                       |
+| `index.html`                             | Add the `accessibility-div` button markup                               |
+| `index.html`                             | Add `<script src="/init.js" data-position="..."></script>` after it     |
+| `src/dwao-accessibility.d.ts`            | Copy from the kit (TypeScript only)                                     |
+| `src/components/AccessibilityReinit.jsx` | Create (Step 4)                                                         |
+| `src/App.jsx`                            | Render `<AccessibilityReinit />` inside `<BrowserRouter>`               |
 
 ---
 
-## Notes
+## Troubleshooting
 
-- The button `id="accessibilityToggleBtn"` must be unique on the page — do not duplicate it.
+- **404 for init.js:** the path must not include `/public`; use `/init.js`.
+- **Two panels:** the script is loaded twice. Load it only from `index.html`.
+- **Text size resets after navigation:** `<AccessibilityReinit />` is missing or rendered outside `<BrowserRouter>`.
+- **Button missing:** `id="accessibilityToggleBtn"` must exist once on the page, outside the React root, before the script tag.
 
 ---
 
-For technical support or questions, contact:
-© 2026 DWAO. All rights reserved. — DWAO Accessibility Widget v1.0.0
+For technical support or questions, contact your DWAO representative.
+
+© 2026 DWAO. All rights reserved. — DWAO Accessibility Widget v2.0.0

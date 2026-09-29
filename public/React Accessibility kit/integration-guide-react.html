@@ -2,289 +2,131 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DWAO Accessibility Widget — React Integration Guide</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      font-size: 11pt;
-      color: #111;
-      max-width: 750px;
-      margin: 48px auto;
-      line-height: 1.6;
-    }
-    h1 {
-      font-size: 22pt;
-      font-weight: 700;
-      color: #1a1a1a;
-      border-bottom: 2px solid #663db3;
-      padding-bottom: 8px;
-      margin-bottom: 24px;
-    }
-    h2 {
-      font-size: 15pt;
-      font-weight: 700;
-      color: #663db3;
-      margin-top: 36px;
-      margin-bottom: 8px;
-    }
-    h3 {
-      font-size: 12pt;
-      font-weight: 700;
-      color: #1a1a1a;
-      margin-top: 24px;
-      margin-bottom: 6px;
-    }
-    p {
-      margin: 8px 0;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin: 16px 0;
-      font-size: 10pt;
-    }
-    th {
-      background-color: #663db3;
-      color: #fff;
-      padding: 8px 12px;
-      text-align: left;
-    }
-    td {
-      border: 1px solid #ddd;
-      padding: 8px 12px;
-      vertical-align: top;
-    }
-    tr:nth-child(even) td {
-      background-color: #f5f0ff;
-    }
-    pre {
-      background-color: #f4f4f4;
-      border-left: 4px solid #663db3;
-      padding: 14px 16px;
-      font-family: "Courier New", monospace;
-      font-size: 9.5pt;
-      overflow-x: auto;
-      margin: 12px 0;
-      white-space: pre;
-    }
-    code {
-      background-color: #f0ecff;
-      font-family: "Courier New", monospace;
-      font-size: 9.5pt;
-      padding: 1px 4px;
-      border-radius: 3px;
-    }
-    blockquote {
-      border-left: 4px solid #663db3;
-      background: #f5f0ff;
-      margin: 12px 0;
-      padding: 10px 16px;
-      color: #333;
-      font-style: italic;
-    }
-    .step-number {
-      display: inline-block;
-      background: #663db3;
-      color: #fff;
-      font-weight: 700;
-      border-radius: 50%;
-      width: 26px;
-      height: 26px;
-      text-align: center;
-      line-height: 26px;
-      margin-right: 8px;
-      font-size: 11pt;
-    }
-    .section-divider {
-      border: none;
-      border-top: 1px solid #ddd;
-      margin: 32px 0;
-    }
-    .note {
-      background: #fff8e1;
-      border-left: 4px solid #f9a825;
-      padding: 10px 16px;
-      margin: 10px 0;
-      font-size: 10pt;
-    }
-    .summary-table th {
-      background-color: #1a1a1a;
-    }
+    body { font-family: Arial, sans-serif; font-size: 11pt; color: #111; max-width: 780px; margin: 48px auto; padding: 0 16px; line-height: 1.6; background: #fff; }
+    h1 { font-size: 22pt; color: #1a1a1a; border-bottom: 2px solid #663db3; padding-bottom: 8px; margin-bottom: 4px; }
+    .subtitle { color: #555; margin: 0 0 24px; }
+    h2 { font-size: 15pt; color: #663db3; margin: 36px 0 8px; }
+    h3 { font-size: 12pt; color: #1a1a1a; margin: 24px 0 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 10pt; }
+    th { background: #663db3; color: #fff; padding: 8px 12px; text-align: left; }
+    td { border: 1px solid #ddd; padding: 8px 12px; vertical-align: top; }
+    tbody tr:nth-child(even) td { background: #f5f0ff; }
+    pre { background: #f4f4f4; border-left: 4px solid #663db3; padding: 14px 16px; font-family: "Courier New", monospace; font-size: 9.5pt; overflow-x: auto; margin: 12px 0; }
+    code { background: #f0ecff; font-family: "Courier New", monospace; font-size: 9.5pt; padding: 1px 4px; border-radius: 3px; }
+    pre code { background: none; padding: 0; }
+    ol.steps { padding-left: 0; list-style: none; counter-reset: step; }
+    ol.steps > li { counter-increment: step; margin: 24px 0; }
+    ol.steps > li > h3::before { content: counter(step); display: inline-block; background: #663db3; color: #fff; border-radius: 50%; width: 26px; height: 26px; text-align: center; line-height: 26px; margin-right: 8px; font-size: 11pt; }
+    .note { background: #fff8e1; border-left: 4px solid #f9a825; padding: 10px 16px; margin: 12px 0; font-size: 10pt; }
+    .summary th { background: #1a1a1a; }
+    footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #ddd; color: #666; font-size: 9.5pt; text-align: center; }
   </style>
 </head>
 <body>
+<main>
 
   <h1>DWAO Accessibility Widget<br>React Integration Guide</h1>
-<p>Integration Guide — v1.0.0
-</p>
-  <p>
-    This guide explains how to integrate the <strong>DWAO Accessibility Widget</strong> (<code>acc.js</code>)
-    into a React application. The widget adds a fully featured accessibility panel to your site —
-    text size, contrast, dyslexia font, reading line, cursor size, and more.
-    It has <strong>no npm dependencies</strong> and requires no build-step changes.
-  </p>
+  <p class="subtitle">Integration Guide — v2.0.0</p>
 
-  <hr class="section-divider" />
+  <p>This guide explains how to add the <strong>DWAO Accessibility Widget</strong> (<code>init.js</code>) to a React application built with Vite or Create React App. The widget adds an accessibility panel (text size, contrast, dyslexia font, reading line, text-to-speech and more) and has <strong>no npm dependencies</strong>. It needs no build configuration changes.</p>
 
-  <h2>Files Required</h2>
-
+  <h2>Files in the Kit</h2>
   <table>
-    <tr>
-      <th>File</th>
-      <th>Purpose</th>
-    </tr>
-    <tr>
-      <td><code>acc.js</code></td>
-      <td>The widget script — host it in your project's <code>public/</code> folder and reference it in <code>index.html</code></td>
-    </tr>
-    <tr>
-      <td><code>dwao-accessibility.d.ts</code></td>
-      <td>TypeScript declaration file — augments <code>Window</code> with the <code>DWAOAccessibility</code> global. Required for TypeScript projects; optional for plain JavaScript.</td>
-    </tr>
+    <thead><tr><th scope="col">File</th><th scope="col">Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>init.js</code></td><td>The widget script. Copy it into your project's <code>public/</code> folder.</td></tr>
+      <tr><td><code>dwao-accessibility.d.ts</code></td><td>TypeScript declaration for the <code>window.DWAOAccessibility</code> global. TypeScript projects only.</td></tr>
+    </tbody>
   </table>
-
-  <hr class="section-divider" />
 
   <h2>Project Structure — Files to Add or Modify</h2>
-
-  <pre>public/
-  acc.js                              &larr; widget script (static asset)
-
+<pre><code>index.html                                ← button markup + script tag (Vite)
+public/
+  init.js                                 ← widget script (static asset)
 src/
-  dwao-accessibility.d.ts            &larr; TypeScript types (TypeScript projects only)</pre>
-
-  <hr class="section-divider" />
+  dwao-accessibility.d.ts                 ← TypeScript types (TypeScript only)
+  components/AccessibilityReinit.jsx      ← new component (or .tsx)
+  App.jsx                                 ← render &lt;AccessibilityReinit /&gt;</code></pre>
 
   <h2>Integration Steps</h2>
-
-  <h3><span class="step-number">1</span>Add the Toggle Button to <code>index.html</code></h3>
-
-  <p>In your project's <code>index.html</code>, add the following markup inside <code>&lt;body&gt;</code>, just before <code>&lt;/body&gt;</code>:</p>
-
-  <pre>&lt;div class="accessibility-div"&gt;
+  <ol class="steps">
+    <li>
+      <h3>Add the toggle button to <code>index.html</code></h3>
+      <p>Vite: the <code>index.html</code> in the project root. Create React App: <code>public/index.html</code>. Add this inside <code>&lt;body&gt;</code>, <strong>outside</strong> the React root:</p>
+<pre><code>&lt;div class="accessibility-div"&gt;
   &lt;button id="accessibilityToggleBtn"&gt;&lt;/button&gt;
-&lt;/div&gt;</pre>
+&lt;/div&gt;</code></pre>
+      <p>Leave the button empty. The widget adds the icon and the "Accessibility" label.</p>
+    </li>
+    <li>
+      <h3>Load the script in <code>index.html</code></h3>
+      <p>Add the script tag <strong>after</strong> the button container, before <code>&lt;/body&gt;</code>. Files in <code>public/</code> are served from the site root, so do <strong>not</strong> include <code>/public</code> in the path.</p>
+<pre><code>&lt;!-- Vite --&gt;
+&lt;script src="/init.js" data-position="bottom-left"&gt;&lt;/script&gt;
 
-  <blockquote>
-    The widget automatically populates the button with an icon and label. Do <strong>not</strong> put any text inside the button manually.
-  </blockquote>
-
-  <h3><span class="step-number">2</span>Load the Script in <code>index.html</code></h3>
-
-  <p>Add the script tag <strong>after</strong> the button div, before <code>&lt;/body&gt;</code>:</p>
-
-  <pre>&lt;script src="acc.js" &gt;&lt;/script&gt;</pre>
-
-  <p><strong>Available <code>data-*</code> configuration attributes</strong> (all optional):</p>
-
-  <table>
-    <tr>
-      <th>Attribute</th>
-      <th>Values</th>
-      <th>Default</th>
-      <th>Description</th>
-    </tr>
-    <tr>
-      <td><code>data-position</code></td>
-      <td><code>bottom-left</code>, <code>bottom-right</code>, <code>top-left</code>, <code>top-right</code></td>
-      <td><code>bottom-left</code></td>
-      <td>Position of the toggle button</td>
-    </tr>
-    <tr>
-      <td><code>data-theme</code></td>
-      <td><code>purple</code>, <code>blue</code>, <code>green</code></td>
-      <td><code>purple</code></td>
-      <td>Widget color theme</td>
-    </tr>
-    <tr>
-      <td><code>data-brand-color</code></td>
-      <td>Any hex color e.g. <code>#e63946</code></td>
-      <td>—</td>
-      <td>Overrides the theme color with a custom brand color</td>
-    </tr>
-    <tr>
-      <td><code>data-lang</code></td>
-      <td><code>en</code></td>
-      <td><code>en</code></td>
-      <td>Widget UI language</td>
-    </tr>
-  </table>
-
-  <p>Your complete <code>index.html</code> should look like this:</p>
-
-  <pre>&lt;!DOCTYPE html&gt;
+&lt;!-- Create React App --&gt;
+&lt;script src="%PUBLIC_URL%/init.js" data-position="bottom-left"&gt;&lt;/script&gt;</code></pre>
+      <p>A complete Vite <code>index.html</code>:</p>
+<pre><code>&lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
-&lt;head&gt;
-  &lt;meta charset="UTF-8" /&gt;
-  &lt;title&gt;Your App&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-  &lt;div id="root"&gt;&lt;/div&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+    &lt;title&gt;Your App&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div id="root"&gt;&lt;/div&gt;
 
-  &lt;div class="accessibility-div"&gt;
-    &lt;button id="accessibilityToggleBtn"&gt;&lt;/button&gt;
-  &lt;/div&gt;
-  &lt;script src="/public/acc.js" data-position="bottom-left" data-theme="pnb"&gt;&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;</pre>
-<blockquote>
-<strong >Note :- </strong>Calling of accessibility file depends on project strucutre it may defer from project to project so link the file according to you project strucutre.
-  </blockquote>
+    &lt;div class="accessibility-div"&gt;
+      &lt;button id="accessibilityToggleBtn"&gt;&lt;/button&gt;
+    &lt;/div&gt;
 
-  <h3><span class="step-number">3</span>Add TypeScript Types <em style="font-weight:400;color:#555;">(TypeScript projects only)</em></h3>
-
-  <p>
-    Copy <code>dwao-accessibility.d.ts</code> into your <code>src/</code> folder (or any directory covered by your
-    <code>tsconfig.json</code> <code>include</code> paths). No import is needed — the <code>declare global</code>
-    block automatically augments the <code>Window</code> interface project-wide, so
-    <code>window.DWAOAccessibility</code> is fully typed everywhere.
-  </p>
-
-  <pre>// dwao-accessibility.d.ts — copy to src/
+    &lt;script type="module" src="/src/main.jsx"&gt;&lt;/script&gt;
+    &lt;script src="/init.js" data-position="bottom-left" data-theme="pnb"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <p class="note"><strong>Load it once, from <code>index.html</code>.</strong> Do not inject the script from a component or <code>useEffect</code>. React StrictMode runs effects twice, and each load creates another panel. If your app is served from a sub-path, prefix the path to match (for example <code>/my-app/init.js</code>).</p>
+    </li>
+    <li>
+      <h3>Add TypeScript types <em>(TypeScript projects only)</em></h3>
+      <p>Copy <code>dwao-accessibility.d.ts</code> into <code>src/</code> (or any folder covered by your <code>tsconfig.json</code> <code>include</code>). No import is needed; the <code>declare global</code> block adds the type to <code>Window</code> across the project.</p>
+<pre><code>// src/dwao-accessibility.d.ts
 declare global {
   interface Window {
-    DWAOAccessibility: {
+    DWAOAccessibility?: {
       version: string;
-      reset: () => void;
-      reinit: () => void;
+      reset: () =&gt; void;
+      reinit: () =&gt; void;
     };
   }
 }
-export {};</pre>
-
-  <div class="note">
-    If you prefer not to copy the file, you can add an inline cast in your component instead:<br>
-    <code>(window as any).DWAOAccessibility?.reinit()</code>
-  </div>
-
-  <h3><span class="step-number">4</span>Reinitialize on Route Changes</h3>
-
-  <p>
-    React Router replaces page content without a full browser reload.
-    The widget must be told to re-scan the DOM after each navigation to work correctly on new pages.
-  </p>
-
-  <p>Create a new file <code>src/components/AccessibilityReinit.jsx</code> (or <code>.tsx</code> for TypeScript):</p>
-
-  <pre>// src/components/AccessibilityReinit.jsx (or .tsx)
+export {};</code></pre>
+      <p>Without it the compiler reports <code>Property 'DWAOAccessibility' does not exist on type 'Window &amp; typeof globalThis'</code>. Plain JavaScript projects skip this step.</p>
+    </li>
+    <li>
+      <h3>Re-initialise on route changes</h3>
+      <p>React Router swaps page content without a reload, so the widget must re-scan the new page to re-apply active text-size, spacing and alignment settings. Create this component:</p>
+<pre><code>// src/components/AccessibilityReinit.jsx (or .tsx)
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 export default function AccessibilityReinit() {
   const location = useLocation();
 
-  useEffect(() => {
-    requestIdleCallback(() => {
-      if (window.DWAOAccessibility) window.DWAOAccessibility.reinit();
-    });
+  useEffect(() =&gt; {
+    const run = () =&gt; window.DWAOAccessibility?.reinit();
+    // requestIdleCallback is missing in some browsers (e.g. Safari)
+    if ("requestIdleCallback" in window) requestIdleCallback(run);
+    else setTimeout(run, 1);
   }, [location.pathname]);
 
   return null;
-}</pre>
-
-  <p>Then render it inside <code>&lt;BrowserRouter&gt;</code> in your root <code>src/App.jsx</code>:</p>
-
-  <pre>// src/App.jsx
+}</code></pre>
+      <p>Render it once inside <code>&lt;BrowserRouter&gt;</code>:</p>
+<pre><code>// src/App.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AccessibilityReinit from "./components/AccessibilityReinit";
 
@@ -292,56 +134,75 @@ export default function App() {
   return (
     &lt;BrowserRouter&gt;
       &lt;AccessibilityReinit /&gt;
-      {/* your routes */}
       &lt;Routes&gt;
         &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
         &lt;Route path="/about" element={&lt;About /&gt;} /&gt;
       &lt;/Routes&gt;
     &lt;/BrowserRouter&gt;
   );
-}</pre>
+}</code></pre>
+    </li>
+  </ol>
 
-  <hr class="section-divider" />
+  <h2>Configuration Options</h2>
+  <p>Set these <code>data-*</code> attributes on the widget's script tag. All are optional.</p>
+  <table>
+    <thead><tr><th scope="col">Attribute</th><th scope="col">Values</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>data-position</code></td><td><code>bottom-left</code>, <code>bottom-right</code>, <code>top-left</code>, <code>top-right</code></td><td><code>bottom-left</code></td><td>Where the button and panel appear</td></tr>
+      <tr><td><code>data-theme</code></td><td><code>pnb</code> (#007abc), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td><td><code>pnb</code></td><td>Accent colour</td></tr>
+      <tr><td><code>data-brand-color</code></td><td>Hex colour, e.g. <code>#e63946</code></td><td>—</td><td>Overrides <code>data-theme</code>. Non-hex values are ignored.</td></tr>
+      <tr><td><code>data-lang</code></td><td><code>en</code></td><td><code>en</code></td><td>Reserved. The panel is English-only in v2.0.0 and this attribute has no effect.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>What the Widget Changes on Your Page</h2>
+  <p>On load, and for any DOM React renders later, the widget automatically:</p>
+  <ul>
+    <li>copies each form field's <code>name</code> into <code>aria-label</code> when it has no <code>aria-label</code>. This includes fields that already have a <code>&lt;label&gt;</code>, so give fields meaningful names;</li>
+    <li>adds a <code>title</code> to untitled iframes;</li>
+    <li>removes <code>onpaste="return false"</code> from password fields (values are never read);</li>
+    <li>inserts a "Skip to main content" link targeting <code>&lt;main&gt;</code> (or the first <code>&lt;h1&gt;</code>) if none exists;</li>
+    <li>sets <code>&lt;html lang&gt;</code> if it is missing, and re-enables pinch-zoom in the viewport meta tag.</li>
+  </ul>
+
+  <h2>Security, Privacy &amp; CSP</h2>
+  <ul>
+    <li>No network requests, no cookies, no external fonts or images.</li>
+    <li>The only stored data is the visitor's selected options, in <code>localStorage</code> under <code>accessibility_local_settings</code>.</li>
+    <li>The widget injects <code>&lt;style&gt;</code> elements, so a Content Security Policy must allow <code>style-src 'self' 'unsafe-inline'</code>. Nothing else is required.</li>
+  </ul>
+
+  <h2>JavaScript API</h2>
+<pre><code>window.DWAOAccessibility.version;   // "2.0.0"
+window.DWAOAccessibility.reset();   // turn off every accessibility setting
+window.DWAOAccessibility.reinit();  // re-scan the page after a route change</code></pre>
 
   <h2>Where Changes Are Required — Summary</h2>
-
-  <table class="summary-table">
-    <tr>
-      <th>File</th>
-      <th>Change Required</th>
-    </tr>
-    <tr>
-      <td><code>index.html</code></td>
-      <td>Add the <code>&lt;div class="accessibility-div"&gt;</code> button markup</td>
-    </tr>
-    <tr>
-      <td><code>index.html</code></td>
-      <td>Add the <code>&lt;script src="acc.js" ...&gt;</code> tag with config attributes</td>
-    </tr>
-    <tr>
-      <td><code>src/dwao-accessibility.d.ts</code></td>
-      <td>Copy from the kit — TypeScript type declaration for <code>window.DWAOAccessibility</code> (TypeScript projects only)</td>
-    </tr>
-    <tr>
-      <td><code>src/components/AccessibilityReinit.jsx</code> / <code>.tsx</code></td>
-      <td>Create this new component (see Step 4)</td>
-    </tr>
-    <tr>
-      <td><code>src/App.jsx</code> / <code>.tsx</code></td>
-      <td>Import and render <code>&lt;AccessibilityReinit /&gt;</code> inside <code>&lt;BrowserRouter&gt;</code></td>
-    </tr>
+  <table class="summary">
+    <thead><tr><th scope="col">File</th><th scope="col">Change</th></tr></thead>
+    <tbody>
+      <tr><td><code>public/init.js</code></td><td>Copy from the kit</td></tr>
+      <tr><td><code>index.html</code></td><td>Add the <code>accessibility-div</code> button markup</td></tr>
+      <tr><td><code>index.html</code></td><td>Add <code>&lt;script src="/init.js" data-position="…"&gt;&lt;/script&gt;</code> after the button</td></tr>
+      <tr><td><code>src/dwao-accessibility.d.ts</code></td><td>Copy from the kit (TypeScript only)</td></tr>
+      <tr><td><code>src/components/AccessibilityReinit.jsx</code></td><td>Create (Step 4)</td></tr>
+      <tr><td><code>src/App.jsx</code></td><td>Render <code>&lt;AccessibilityReinit /&gt;</code> inside <code>&lt;BrowserRouter&gt;</code></td></tr>
+    </tbody>
   </table>
-  
-  <hr class="section-divider" />
 
-  <h2>Note:-</h2>
+  <h2>Troubleshooting</h2>
+  <ul>
+    <li><strong>404 for init.js:</strong> the path must not include <code>/public</code>; use <code>/init.js</code>.</li>
+    <li><strong>Two panels:</strong> the script is loaded twice. Load it only from <code>index.html</code>.</li>
+    <li><strong>Text size resets after navigation:</strong> <code>&lt;AccessibilityReinit /&gt;</code> is missing or rendered outside <code>&lt;BrowserRouter&gt;</code>.</li>
+    <li><strong>Button missing:</strong> <code>id="accessibilityToggleBtn"</code> must exist once on the page, outside the React root, before the script tag.</li>
+  </ul>
 
+  <h2>Support</h2>
+  <p>For technical support or questions, contact your DWAO representative.</p>
 
-  <div class="note">
-    The button <code>id="accessibilityToggleBtn"</code> must be unique on the page. Do not duplicate it.
-  </div>
-<hr class="section-divider" />
-  <p class="p10"><span class="s1">For technical support or questions, contact:</span></p>
-  <p class="p23"><span class="s1">© 2026 DWAO. All rights reserved. — DWAO Accessibility Widget v1.0.0</span></p>
+</main>
+<footer>© 2026 DWAO. All rights reserved. — DWAO Accessibility Widget v2.0.0</footer>
 </body>
 </html>

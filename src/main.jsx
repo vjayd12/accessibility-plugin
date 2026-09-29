@@ -10,6 +10,7 @@ root.render(
   </StrictMode>,
 )
 
-requestIdleCallback(function () {
-  if (window.DWAOAccessibility) window.DWAOAccessibility.reinit()
-})
+const run = () => window.DWAOAccessibility?.reinit()
+// requestIdleCallback is missing in some browsers (e.g. Safari)
+if ('requestIdleCallback' in window) requestIdleCallback(run)
+else setTimeout(run, 1)
