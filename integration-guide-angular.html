@@ -2,233 +2,84 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DWAO Accessibility Widget — Angular Integration Guide</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      font-size: 11pt;
-      color: #111;
-      max-width: 750px;
-      margin: 48px auto;
-      line-height: 1.6;
-    }
-    h1 {
-      font-size: 22pt;
-      font-weight: 700;
-      color: #1a1a1a;
-      border-bottom: 2px solid #663db3;
-      padding-bottom: 8px;
-      margin-bottom: 24px;
-    }
-    h2 {
-      font-size: 15pt;
-      font-weight: 700;
-      color: #663db3;
-      margin-top: 36px;
-      margin-bottom: 8px;
-    }
-    h3 {
-      font-size: 12pt;
-      font-weight: 700;
-      color: #1a1a1a;
-      margin-top: 24px;
-      margin-bottom: 6px;
-    }
-    p {
-      margin: 8px 0;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin: 16px 0;
-      font-size: 10pt;
-    }
-    th {
-      background-color: #663db3;
-      color: #fff;
-      padding: 8px 12px;
-      text-align: left;
-    }
-    td {
-      border: 1px solid #ddd;
-      padding: 8px 12px;
-      vertical-align: top;
-    }
-    tr:nth-child(even) td {
-      background-color: #f5f0ff;
-    }
-    pre {
-      background-color: #f4f4f4;
-      border-left: 4px solid #663db3;
-      padding: 14px 16px;
-      font-family: "Courier New", monospace;
-      font-size: 9.5pt;
-      overflow-x: auto;
-      margin: 12px 0;
-      white-space: pre;
-    }
-    code {
-      background-color: #f0ecff;
-      font-family: "Courier New", monospace;
-      font-size: 9.5pt;
-      padding: 1px 4px;
-      border-radius: 3px;
-    }
-    blockquote {
-      border-left: 4px solid #663db3;
-      background: #f5f0ff;
-      margin: 12px 0;
-      padding: 10px 16px;
-      color: #333;
-      font-style: italic;
-    }
-    .step-number {
-      display: inline-block;
-      background: #663db3;
-      color: #fff;
-      font-weight: 700;
-      border-radius: 50%;
-      width: 26px;
-      height: 26px;
-      text-align: center;
-      line-height: 26px;
-      margin-right: 8px;
-      font-size: 11pt;
-    }
-    .section-divider {
-      border: none;
-      border-top: 1px solid #ddd;
-      margin: 32px 0;
-    }
-    .note {
-      background: #fff8e1;
-      border-left: 4px solid #f9a825;
-      padding: 10px 16px;
-      margin: 10px 0;
-      font-size: 10pt;
-    }
-    .summary-table th {
-      background-color: #1a1a1a;
-    }
+    body { font-family: Arial, sans-serif; font-size: 11pt; color: #111; max-width: 780px; margin: 48px auto; padding: 0 16px; line-height: 1.6; background: #fff; }
+    h1 { font-size: 22pt; color: #1a1a1a; border-bottom: 2px solid #663db3; padding-bottom: 8px; margin-bottom: 4px; }
+    .subtitle { color: #555; margin: 0 0 24px; }
+    h2 { font-size: 15pt; color: #663db3; margin: 36px 0 8px; }
+    h3 { font-size: 12pt; color: #1a1a1a; margin: 24px 0 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 10pt; }
+    th { background: #663db3; color: #fff; padding: 8px 12px; text-align: left; }
+    td { border: 1px solid #ddd; padding: 8px 12px; vertical-align: top; }
+    tbody tr:nth-child(even) td { background: #f5f0ff; }
+    pre { background: #f4f4f4; border-left: 4px solid #663db3; padding: 14px 16px; font-family: "Courier New", monospace; font-size: 9.5pt; overflow-x: auto; margin: 12px 0; }
+    code { background: #f0ecff; font-family: "Courier New", monospace; font-size: 9.5pt; padding: 1px 4px; border-radius: 3px; }
+    pre code { background: none; padding: 0; }
+    ol.steps { padding-left: 0; list-style: none; counter-reset: step; }
+    ol.steps > li { counter-increment: step; margin: 24px 0; }
+    ol.steps > li > h3::before { content: counter(step); display: inline-block; background: #663db3; color: #fff; border-radius: 50%; width: 26px; height: 26px; text-align: center; line-height: 26px; margin-right: 8px; font-size: 11pt; }
+    .note { background: #fff8e1; border-left: 4px solid #f9a825; padding: 10px 16px; margin: 12px 0; font-size: 10pt; }
+    .summary th { background: #1a1a1a; }
+    footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #ddd; color: #666; font-size: 9.5pt; text-align: center; }
   </style>
 </head>
 <body>
+<main>
 
   <h1>DWAO Accessibility Widget<br>Angular Integration Guide</h1>
-  <p>Integration Guide — v1.0.0</p>
-  <p>
-    This guide explains how to integrate the <strong>DWAO Accessibility Widget</strong> (<code>acc.js</code>)
-    into an Angular application. The widget adds a fully featured accessibility panel to your site —
-    text size, contrast, dyslexia font, reading line, cursor size, and more.
-    It has <strong>no npm dependencies</strong> and requires no build-step changes.
-  </p>
+  <p class="subtitle">Integration Guide — v2.0.0</p>
 
-  <hr class="section-divider" />
+  <p>This guide explains how to add the <strong>DWAO Accessibility Widget</strong> (<code>init.js</code>) to an Angular application. The widget adds an accessibility panel (text size, contrast, dyslexia font, reading line, text-to-speech and more) and has <strong>no npm dependencies</strong>. No <code>angular.json</code> changes are needed.</p>
 
-  <h2>Files Required</h2>
-
+  <h2>Files in the Kit</h2>
   <table>
-    <tr>
-      <th>File</th>
-      <th>Purpose</th>
-    </tr>
-    <tr>
-      <td><code>acc.js</code></td>
-      <td>The widget script — place it in <code>public/</code> (Angular 17+) or <code>src/assets/</code> (Angular 16 and below). No <code>angular.json</code> changes are needed in either case.</td>
-    </tr>
-    <tr>
-      <td><code>dwao-accessibility.d.ts</code></td>
-      <td>TypeScript declaration file — augments <code>Window</code> with the <code>DWAOAccessibility</code> global. Angular projects always use TypeScript, so this file is required.</td>
-    </tr>
+    <thead><tr><th scope="col">File</th><th scope="col">Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>init.js</code></td><td>The widget script. Place it in <code>public/</code> (Angular 17+) or <code>src/assets/</code> (Angular 16 and below).</td></tr>
+      <tr><td><code>dwao-accessibility.d.ts</code></td><td>TypeScript declaration for the <code>window.DWAOAccessibility</code> global. Required, because Angular projects always use TypeScript.</td></tr>
+    </tbody>
   </table>
-
-  <hr class="section-divider" />
 
   <h2>Project Structure — Files to Add or Modify</h2>
-
-  <pre><span style="color:#663db3">Angular 17+ (new application builder)</span>
-public/
-  acc.js                            &larr; widget script — served at root, no angular.json changes needed
-
-<span style="color:#663db3">Angular 16 and below (webpack builder)</span>
+<pre><code>public/
+  init.js                     ← Angular 17+ (application builder), served at /init.js
 src/
   assets/
-    acc.js                          &larr; widget script — served at /assets/, no angular.json changes needed
-
-<span style="color:#663db3">Both versions</span>
-src/
-  dwao-accessibility.d.ts           &larr; TypeScript types
+    init.js                   ← Angular 16 and below (webpack builder), served at /assets/init.js
+  index.html                  ← button markup + script tag
+  dwao-accessibility.d.ts     ← TypeScript types
   app/
-    app.component.ts                &larr; add route-change reinit here</pre>
-
-  <hr class="section-divider" />
+    app.component.ts          ← re-initialise on route change</code></pre>
+  <p>Use <strong>one</strong> location for <code>init.js</code>, matching your Angular version.</p>
 
   <h2>Integration Steps</h2>
-
-  <h3><span class="step-number">1</span>Add the Toggle Button to <code>src/index.html</code></h3>
-
-  <p>In your project's <code>src/index.html</code>, add the following markup inside <code>&lt;body&gt;</code>, just before <code>&lt;/body&gt;</code>:</p>
-
-  <pre>&lt;div class="accessibility-div"&gt;
+  <ol class="steps">
+    <li>
+      <h3>Add the toggle button to <code>src/index.html</code></h3>
+      <p>Add this inside <code>&lt;body&gt;</code>, <strong>outside</strong> <code>&lt;app-root&gt;</code>:</p>
+<pre><code>&lt;div class="accessibility-div"&gt;
   &lt;button id="accessibilityToggleBtn"&gt;&lt;/button&gt;
-&lt;/div&gt;</pre>
+&lt;/div&gt;</code></pre>
+      <p>Leave the button empty. The widget adds the icon and the "Accessibility" label.</p>
+    </li>
+    <li>
+      <h3>Load the script in <code>src/index.html</code></h3>
+      <p>Add the script tag <strong>after</strong> the button container, before <code>&lt;/body&gt;</code>:</p>
+<pre><code>&lt;!-- Angular 17+ : file in public/init.js --&gt;
+&lt;script src="init.js" data-position="bottom-left"&gt;&lt;/script&gt;
 
-  <blockquote>
-    The widget automatically populates the button with an icon and label. Do <strong>not</strong> put any text inside the button manually.
-  </blockquote>
-
-  <h3><span class="step-number">2</span>Load the Script in <code>src/index.html</code></h3>
-
-  <p>Add the script tag <strong>after</strong> the button div, before <code>&lt;/body&gt;</code>:</p>
-
-  <pre>&lt;!-- Angular 17+ (new application builder — public/ folder) --&gt;
-&lt;script src="acc.js"&gt;&lt;/script&gt;
-
-&lt;!-- Angular 16 and below (webpack builder — src/assets/ folder) --&gt;
-&lt;script src="assets/acc.js"&gt;&lt;/script&gt;</pre>
-
-  <p><strong>Available <code>data-*</code> configuration attributes</strong> (all optional):</p>
-
-  <table>
-    <tr>
-      <th>Attribute</th>
-      <th>Values</th>
-      <th>Default</th>
-      <th>Description</th>
-    </tr>
-    <tr>
-      <td><code>data-position</code></td>
-      <td><code>bottom-left</code>, <code>bottom-right</code>, <code>top-left</code>, <code>top-right</code></td>
-      <td><code>bottom-left</code></td>
-      <td>Position of the toggle button</td>
-    </tr>
-    <tr>
-      <td><code>data-theme</code></td>
-      <td><code>purple</code>, <code>blue</code>, <code>green</code></td>
-      <td><code>purple</code></td>
-      <td>Widget color theme</td>
-    </tr>
-    <tr>
-      <td><code>data-brand-color</code></td>
-      <td>Any hex color e.g. <code>#e63946</code></td>
-      <td>—</td>
-      <td>Overrides the theme color with a custom brand color</td>
-    </tr>
-    <tr>
-      <td><code>data-lang</code></td>
-      <td><code>en</code></td>
-      <td><code>en</code></td>
-      <td>Widget UI language</td>
-    </tr>
-  </table>
-
-  <p>Your complete <code>src/index.html</code> should look like this:</p>
-
-  <pre>&lt;!DOCTYPE html&gt;
+&lt;!-- Angular 16 and below : file in src/assets/init.js --&gt;
+&lt;script src="assets/init.js" data-position="bottom-left"&gt;&lt;/script&gt;</code></pre>
+      <p>A complete <code>src/index.html</code> (Angular 17+):</p>
+<pre><code>&lt;!doctype html&gt;
 &lt;html lang="en"&gt;
 &lt;head&gt;
-  &lt;meta charset="UTF-8" /&gt;
+  &lt;meta charset="utf-8"&gt;
   &lt;title&gt;Your App&lt;/title&gt;
+  &lt;base href="/"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
 &lt;/head&gt;
 &lt;body&gt;
   &lt;app-root&gt;&lt;/app-root&gt;
@@ -236,54 +87,32 @@ src/
   &lt;div class="accessibility-div"&gt;
     &lt;button id="accessibilityToggleBtn"&gt;&lt;/button&gt;
   &lt;/div&gt;
-  &lt;!-- Angular 17+: file goes in public/acc.js --&gt;
-  &lt;script src="acc.js" data-position="bottom-left" data-theme="purple"&gt;&lt;/script&gt;
 
-  &lt;!-- Angular 16 and below: file goes in src/assets/acc.js --&gt;
-  &lt;!-- &lt;script src="assets/acc.js" data-position="bottom-left" data-theme="purple"&gt;&lt;/script&gt; --&gt;
+  &lt;script src="init.js" data-position="bottom-left" data-theme="pnb"&gt;&lt;/script&gt;
 &lt;/body&gt;
-&lt;/html&gt;</pre>
-
-  <blockquote>
-    <strong>Angular 17+</strong> uses the new application builder — place <code>acc.js</code> in <code>public/</code> and reference it as <code>src="acc.js"</code>. No <code>angular.json</code> changes needed.<br><br>
-    <strong>Angular 16 and below</strong> uses the webpack builder — place <code>acc.js</code> in <code>src/assets/</code> and reference it as <code>src="assets/acc.js"</code>. No <code>angular.json</code> changes needed.
-  </blockquote>
-
-  <h3><span class="step-number">3</span>Add TypeScript Types</h3>
-
-  <p>
-    Copy <code>dwao-accessibility.d.ts</code> into your <code>src/</code> folder. No import is needed — the <code>declare global</code>
-    block automatically augments the <code>Window</code> interface project-wide, so
-    <code>window.DWAOAccessibility</code> is fully typed everywhere in the project.
-  </p>
-
-  <pre>// dwao-accessibility.d.ts — copy to src/
+&lt;/html&gt;</code></pre>
+      <p class="note">The relative path resolves against <code>&lt;base href&gt;</code>, so it keeps working when the app is deployed under a sub-path. Load the script only here. Adding it to the <code>scripts</code> array in <code>angular.json</code> as well would load it twice and create two panels.</p>
+    </li>
+    <li>
+      <h3>Add TypeScript types</h3>
+      <p>Copy <code>dwao-accessibility.d.ts</code> into <code>src/</code> (any folder covered by <code>tsconfig.app.json</code>). No import is needed; the <code>declare global</code> block adds the type to <code>Window</code> across the project.</p>
+<pre><code>// src/dwao-accessibility.d.ts
 declare global {
   interface Window {
     DWAOAccessibility?: {
       version: string;
-      reset: () => void;
-      reinit: () => void;
+      reset: () =&gt; void;
+      reinit: () =&gt; void;
     };
   }
 }
-export {};</pre>
-
-  <div class="note">
-    If you prefer not to copy the file, you can use an inline cast wherever needed:<br>
-    <code>(window as any).DWAOAccessibility?.reinit()</code>
-  </div>
-
-  <h3><span class="step-number">4</span>Reinitialize on Route Changes</h3>
-
-  <p>
-    Angular Router navigates between views without a full browser reload.
-    The widget must be told to re-scan the DOM after each navigation to work correctly on new pages.
-  </p>
-
-  <p>In your <code>src/app/app.component.ts</code>, inject <code>Router</code> and listen for <code>NavigationEnd</code> events:</p>
-
-  <pre>// src/app/app.component.ts
+export {};</code></pre>
+      <p>Without it the compiler reports <code>Property 'DWAOAccessibility' does not exist on type 'Window &amp; typeof globalThis'</code>.</p>
+    </li>
+    <li>
+      <h3>Re-initialise on route changes</h3>
+      <p>The Angular Router swaps views without a reload, so the widget must re-scan the new view to re-apply active text-size, spacing and alignment settings. In <code>src/app/app.component.ts</code>, listen for <code>NavigationEnd</code>:</p>
+<pre><code>// src/app/app.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -300,58 +129,76 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.router.events
-      .pipe(filter((e) => e instanceof NavigationEnd))
-      .subscribe(() => {
-        requestIdleCallback(() => {
-          window.DWAOAccessibility?.reinit();
-        });
+      .pipe(filter((e) =&gt; e instanceof NavigationEnd))
+      .subscribe(() =&gt; {
+        const run = () =&gt; window.DWAOAccessibility?.reinit();
+        // requestIdleCallback is missing in some browsers (e.g. Safari)
+        if ('requestIdleCallback' in window) requestIdleCallback(run);
+        else setTimeout(run, 1);
       });
   }
-}</pre>
-
-  <hr class="section-divider" />
-
-  <h2>Where Changes Are Required — Summary</h2>
-
-  <table class="summary-table">
-    <tr>
-      <th>File</th>
-      <th>Change Required</th>
-    </tr>
-    <tr>
-      <td><code>public/acc.js</code> <em>(Angular 17+)</em><br><code>src/assets/acc.js</code> <em>(Angular 16 and below)</em></td>
-      <td>Place the widget script in the correct folder for your Angular version — no <code>angular.json</code> changes needed in either case</td>
-    </tr>
-    <tr>
-      <td><code>src/index.html</code></td>
-      <td>Add the <code>&lt;div class="accessibility-div"&gt;</code> button markup</td>
-    </tr>
-    <tr>
-      <td><code>src/index.html</code></td>
-      <td>Add the <code>&lt;script src="assets/acc.js" ...&gt;</code> tag with config attributes</td>
-    </tr>
-    <tr>
-      <td><code>src/dwao-accessibility.d.ts</code></td>
-      <td>Copy from the kit — TypeScript type declaration for <code>window.DWAOAccessibility</code></td>
-    </tr>
-    <tr>
-      <td><code>src/app/app.component.ts</code></td>
-      <td>Inject <code>Router</code> and subscribe to <code>NavigationEnd</code> to call <code>reinit()</code> on each route change</td>
-    </tr>
+}</code></pre>
+      <p>For an NgModule-based app, put the same <code>ngOnInit</code> body in your root <code>AppComponent</code>.</p>
+    </li>
+  </ol>
+  <h2>Configuration Options</h2>
+  <p>Set these <code>data-*</code> attributes on the widget's script tag. All are optional.</p>
+  <table>
+    <thead><tr><th scope="col">Attribute</th><th scope="col">Values</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>data-position</code></td><td><code>bottom-left</code>, <code>bottom-right</code>, <code>top-left</code>, <code>top-right</code></td><td><code>bottom-left</code></td><td>Where the button and panel appear</td></tr>
+      <tr><td><code>data-theme</code></td><td><code>pnb</code> (#007abc), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td><td><code>pnb</code></td><td>Accent colour</td></tr>
+      <tr><td><code>data-brand-color</code></td><td>Hex colour, e.g. <code>#e63946</code></td><td>—</td><td>Overrides <code>data-theme</code>. Non-hex values are ignored.</td></tr>
+      <tr><td><code>data-lang</code></td><td><code>en</code></td><td><code>en</code></td><td>Reserved. The panel is English-only in v2.0.0 and this attribute has no effect.</td></tr>
+    </tbody>
   </table>
 
-  <hr class="section-divider" />
+  <h2>What the Widget Changes on Your Page</h2>
+  <p>On load, and for any view Angular renders later, the widget automatically:</p>
+  <ul>
+    <li>copies each form field's <code>name</code> into <code>aria-label</code> when it has no <code>aria-label</code>. This includes fields that already have a <code>&lt;label&gt;</code>, so give fields meaningful names;</li>
+    <li>adds a <code>title</code> to untitled iframes;</li>
+    <li>removes <code>onpaste="return false"</code> from password fields (values are never read);</li>
+    <li>inserts a "Skip to main content" link targeting <code>&lt;main&gt;</code> (or the first <code>&lt;h1&gt;</code>) if none exists;</li>
+    <li>sets <code>&lt;html lang&gt;</code> if it is missing, and re-enables pinch-zoom in the viewport meta tag.</li>
+  </ul>
 
-  <h2>Note</h2>
+  <h2>Security, Privacy &amp; CSP</h2>
+  <ul>
+    <li>No network requests, no cookies, no external fonts or images.</li>
+    <li>The only stored data is the visitor's selected options, in <code>localStorage</code> under <code>accessibility_local_settings</code>.</li>
+    <li>The widget injects <code>&lt;style&gt;</code> elements, so a Content Security Policy must allow <code>style-src 'self' 'unsafe-inline'</code>. Nothing else is required.</li>
+  </ul>
 
-  <div class="note">
-    The button <code>id="accessibilityToggleBtn"</code> must be unique on the page. Do not duplicate it.
-  </div>
+  <h2>JavaScript API</h2>
+<pre><code>window.DWAOAccessibility.version;   // "2.0.0"
+window.DWAOAccessibility.reset();   // turn off every accessibility setting
+window.DWAOAccessibility.reinit();  // re-scan the page after a route change</code></pre>
 
-  <hr class="section-divider" />
+  <h2>Where Changes Are Required — Summary</h2>
+  <table class="summary">
+    <thead><tr><th scope="col">File</th><th scope="col">Change</th></tr></thead>
+    <tbody>
+      <tr><td><code>public/init.js</code> <em>(Angular 17+)</em><br><code>src/assets/init.js</code> <em>(Angular 16 and below)</em></td><td>Copy from the kit</td></tr>
+      <tr><td><code>src/index.html</code></td><td>Add the <code>accessibility-div</code> button markup</td></tr>
+      <tr><td><code>src/index.html</code></td><td>Add <code>&lt;script src="init.js" …&gt;</code> (17+) or <code>&lt;script src="assets/init.js" …&gt;</code> (16 and below) after the button</td></tr>
+      <tr><td><code>src/dwao-accessibility.d.ts</code></td><td>Copy from the kit</td></tr>
+      <tr><td><code>src/app/app.component.ts</code></td><td>Call <code>reinit()</code> on every <code>NavigationEnd</code></td></tr>
+    </tbody>
+  </table>
 
-  <p class="p10"><span class="s1">For technical support or questions, contact:</span></p>
-  <p class="p23"><span class="s1">© 2026 DWAO. All rights reserved. — DWAO Accessibility Widget v1.0.0</span></p>
+  <h2>Troubleshooting</h2>
+  <ul>
+    <li><strong>404 for init.js:</strong> Angular 17+ serves <code>public/</code> at the root (<code>src="init.js"</code>); Angular 16 serves <code>src/assets/</code> at <code>assets/</code> (<code>src="assets/init.js"</code>).</li>
+    <li><strong>Two panels:</strong> the script is loaded twice, e.g. from both <code>index.html</code> and <code>angular.json</code> <code>scripts</code>.</li>
+    <li><strong>Text size resets after navigation:</strong> the <code>NavigationEnd</code> subscription in Step 4 is missing.</li>
+    <li><strong>Button missing:</strong> <code>id="accessibilityToggleBtn"</code> must exist once on the page, outside <code>&lt;app-root&gt;</code>, before the script tag.</li>
+  </ul>
 
+  <h2>Support</h2>
+  <p>For technical support or questions, contact your DWAO representative.</p>
+
+</main>
+<footer>© 2026 DWAO. All rights reserved. — DWAO Accessibility Widget v2.0.0</footer>
 </body>
 </html>

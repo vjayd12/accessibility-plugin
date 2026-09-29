@@ -17,9 +17,10 @@ export class AppComponent implements OnInit {
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe(() => {
-        requestIdleCallback(() => {
-          window.DWAOAccessibility?.reinit()
-        })
+        const run = () => window.DWAOAccessibility?.reinit()
+        // requestIdleCallback is missing in some browsers (e.g. Safari)
+        if ('requestIdleCallback' in window) requestIdleCallback(run)
+        else setTimeout(run, 1)
       })
   }
 }
