@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DWAO Accessibility Widget — JSP Integration Guide</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 11pt; color: #111; max-width: 780px; margin: 48px auto; padding: 0 16px; line-height: 1.6; background: #fff; }
+    h1 { font-size: 22pt; color: #1a1a1a; border-bottom: 2px solid #663db3; padding-bottom: 8px; margin-bottom: 4px; }
+    .subtitle { color: #555; margin: 0 0 24px; }
+    h2 { font-size: 15pt; color: #663db3; margin: 36px 0 8px; }
+    h3 { font-size: 12pt; color: #1a1a1a; margin: 24px 0 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 10pt; }
+    th { background: #663db3; color: #fff; padding: 8px 12px; text-align: left; }
+    td { border: 1px solid #ddd; padding: 8px 12px; vertical-align: top; }
+    tbody tr:nth-child(even) td { background: #f5f0ff; }
+    pre { background: #f4f4f4; border-left: 4px solid #663db3; padding: 14px 16px; font-family: "Courier New", monospace; font-size: 9.5pt; overflow-x: auto; margin: 12px 0; }
+    code { background: #f0ecff; font-family: "Courier New", monospace; font-size: 9.5pt; padding: 1px 4px; border-radius: 3px; }
+    pre code { background: none; padding: 0; }
+    .step { display: inline-block; background: #663db3; color: #fff; border-radius: 50%; width: 26px; height: 26px; text-align: center; line-height: 26px; margin-right: 8px; font-size: 11pt; }
+    .note { background: #fff8e1; border-left: 4px solid #f9a825; padding: 10px 16px; margin: 12px 0; font-size: 10pt; }
+    .summary th { background: #1a1a1a; }
+    footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #ddd; color: #666; font-size: 9.5pt; text-align: center; }
+  </style>
+</head>
+<body>
+<main>
+
+  <h1>DWAO Accessibility Widget<br>JSP Integration Guide</h1>
+  <p class="subtitle">Integration Guide — v2.0.0</p>
+
+<h2>What It Is</h2>
+<p>A self-contained, zero-dependency JavaScript widget (<code>init.js</code>) that adds an accessibility panel to any JSP web application (plain JSP, Servlets, Spring MVC or Struts): text size, contrast, dyslexia font, reading line, text-to-speech and more. It needs no Java code, no Maven or Gradle dependencies and no server configuration changes.</p>
+<h2>Files in the Kit</h2>
+<table>
+<thead>
+<tr>
+<th scope="col">File</th>
+<th scope="col">Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>init.js</code></td>
+<td>The widget script. Copy it into a static folder of your web application (not <code>WEB-INF/</code>).</td>
+</tr>
+<tr>
+<td><code>accessibility-widget.jsp</code></td>
+<td>The button markup and script tag, ready to include in your pages.</td>
+</tr>
+</tbody></table>
+<h2>Project Structure — Files to Add or Modify</h2>
+<pre><code>src/main/webapp/                          ← WebContent/ in Eclipse Dynamic Web Projects
+  assets/vendor/dwao-accessibility/
+    init.js                               ← widget script (static asset)
+  includes/
+    accessibility-widget.jsp              ← button markup + script tag (new)
+    footer.jsp                            ← include accessibility-widget.jsp (your common footer)
+</code></pre>
+<h2>Integration Steps</h2>
+<h3><span class="step">1</span>Add the Toggle Button to <code>accessibility-widget.jsp</code></h3>
+<p>Copy <code>init.js</code> to <code>src/main/webapp/assets/vendor/dwao-accessibility/</code> and <code>accessibility-widget.jsp</code> to <code>src/main/webapp/includes/</code>. The include starts with the button container:</p>
+<pre><code class="language-html">&lt;div class=&quot;accessibility-div&quot;&gt;
+  &lt;button id=&quot;accessibilityToggleBtn&quot;&gt;&lt;/button&gt;
+&lt;/div&gt;
+</code></pre>
+<p class="note">Leave the button empty. The widget adds the icon and the &quot;Accessibility&quot; label.</p>
+<h3><span class="step">2</span>Load the Script in <code>accessibility-widget.jsp</code></h3>
+<p>The script tag comes <strong>after</strong> the button container. Start the path with <code>${pageContext.request.contextPath}</code> so it works when the application is deployed under a context path (for example <code>https://example.com/shop/</code>). Do <strong>not</strong> include <code>src/main/webapp</code> in the path.</p>
+<pre><code class="language-jsp">&lt;script src=&quot;${pageContext.request.contextPath}/assets/vendor/dwao-accessibility/init.js&quot; data-position=&quot;bottom-left&quot;&gt;&lt;/script&gt;
+</code></pre>
+<p>The complete <code>accessibility-widget.jsp</code>:</p>
+<pre><code class="language-jsp">&lt;%@ page pageEncoding=&quot;UTF-8&quot; %&gt;
+&lt;div class=&quot;accessibility-div&quot;&gt;
+  &lt;button id=&quot;accessibilityToggleBtn&quot;&gt;&lt;/button&gt;
+&lt;/div&gt;
+&lt;script src=&quot;${pageContext.request.contextPath}/assets/vendor/dwao-accessibility/init.js&quot;
+        data-position=&quot;bottom-left&quot; data-theme=&quot;pnb&quot;&gt;&lt;/script&gt;
+</code></pre>
+<p class="note"><strong>Keep <code>init.js</code> out of <code>WEB-INF/</code>.</strong> The server never sends files from <code>WEB-INF/</code> to the browser, so the script would return 404. If you copy it to a different folder, update the <code>src</code> path to match.</p>
+<h3><span class="step">3</span>Include It on Every Page</h3>
+<p>Add this line once, just before <code>&lt;/body&gt;</code>, in the JSP that every page shares (usually the common footer):</p>
+<pre><code class="language-jsp">&lt;jsp:include page=&quot;/includes/accessibility-widget.jsp&quot; /&gt;
+</code></pre>
+<p>A complete page:</p>
+<pre><code class="language-jsp">&lt;%@ page contentType=&quot;text/html;charset=UTF-8&quot; %&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+    &lt;title&gt;Your Page&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;jsp:include page=&quot;/includes/header.jsp&quot; /&gt;
+
+    &lt;main id=&quot;main&quot;&gt;
+        ...page content...
+    &lt;/main&gt;
+
+    &lt;jsp:include page=&quot;/includes/footer.jsp&quot; /&gt;
+    &lt;jsp:include page=&quot;/includes/accessibility-widget.jsp&quot; /&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p class="note"><strong>Include it once per page.</strong> If it is included from both the header and the footer, each copy creates another panel. Do not inject the script with JavaScript: it reads its own tag&#39;s <code>data-*</code> attributes.</p>
+<h3><span class="step">4</span>Re-initialise After AJAX Updates <em>(AJAX pages only)</em></h3>
+<p>Each JSP page is a full page load, so the widget initialises itself on every page. If a page replaces part of its content with AJAX (for example a product list loaded with <code>fetch()</code>), the widget must re-scan the new content to re-apply active text-size, spacing and alignment settings:</p>
+<pre><code class="language-js">container.innerHTML = html;
+window.DWAOAccessibility &amp;&amp; window.DWAOAccessibility.reinit();
+</code></pre>
+<h2>Configuration Options</h2>
+<p>Set these <code>data-*</code> attributes on the widget&#39;s script tag in <code>accessibility-widget.jsp</code>. All are optional.</p>
+<table>
+<thead>
+<tr>
+<th scope="col">Attribute</th>
+<th scope="col">Values</th>
+<th scope="col">Default</th>
+<th scope="col">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>data-position</code></td>
+<td><code>bottom-left</code>, <code>bottom-right</code>, <code>top-left</code>, <code>top-right</code></td>
+<td><code>bottom-left</code></td>
+<td>Where the button and panel appear</td>
+</tr>
+<tr>
+<td><code>data-theme</code></td>
+<td><code>pnb</code> (#007abc), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td>
+<td><code>pnb</code></td>
+<td>Accent colour</td>
+</tr>
+<tr>
+<td><code>data-brand-color</code></td>
+<td>Hex colour, e.g. <code>#e63946</code></td>
+<td>—</td>
+<td>Overrides <code>data-theme</code>. Non-hex values are ignored.</td>
+</tr>
+<tr>
+<td><code>data-lang</code></td>
+<td><code>en</code></td>
+<td><code>en</code></td>
+<td>Reserved. The panel is English-only in v2.0.0 and this has no effect.</td>
+</tr>
+</tbody></table>
+<h2>What the Widget Changes on Your Page</h2>
+<p>On load, and for any content added later, the widget automatically:</p>
+<ul>
+<li>copies each form field&#39;s <code>name</code> into <code>aria-label</code> when it has no <code>aria-label</code>. This includes fields that already have a <code>&lt;label&gt;</code>, so give fields meaningful names;</li>
+<li>adds a <code>title</code> to untitled iframes;</li>
+<li>removes <code>onpaste=&quot;return false&quot;</code> from password fields (values are never read);</li>
+<li>inserts a &quot;Skip to main content&quot; link targeting <code>&lt;main&gt;</code> (or the first <code>&lt;h1&gt;</code>) if none exists;</li>
+<li>sets <code>&lt;html lang&gt;</code> if it is missing, and re-enables pinch-zoom in the viewport meta tag.</li>
+</ul>
+<h2>Security, Privacy &amp; CSP</h2>
+<ul>
+<li>No network requests, no cookies, no external fonts or images.</li>
+<li>No server-side code: nothing runs on the application server.</li>
+<li>The only stored data is the visitor&#39;s selected options, in <code>localStorage</code> under <code>accessibility_local_settings</code>.</li>
+<li>The widget injects <code>&lt;style&gt;</code> elements, so a Content Security Policy must allow <code>style-src &#39;self&#39; &#39;unsafe-inline&#39;</code>. Nothing else is required.</li>
+</ul>
+<h2>JavaScript API</h2>
+<pre><code class="language-js">window.DWAOAccessibility.version;   // &quot;2.0.0&quot;
+window.DWAOAccessibility.reset();   // turn off every accessibility setting
+window.DWAOAccessibility.reinit();  // re-scan the page after an AJAX update
+</code></pre>
+<h2>Where Changes Are Required — Summary</h2>
+<table class="summary">
+<thead>
+<tr>
+<th scope="col">File</th>
+<th scope="col">Change</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>src/main/webapp/assets/vendor/dwao-accessibility/init.js</code></td>
+<td>Copy from the kit</td>
+</tr>
+<tr>
+<td><code>src/main/webapp/includes/accessibility-widget.jsp</code></td>
+<td>Copy from the kit (button markup + script tag)</td>
+</tr>
+<tr>
+<td>Common footer JSP</td>
+<td>Add <code>&lt;jsp:include page=&quot;/includes/accessibility-widget.jsp&quot; /&gt;</code></td>
+</tr>
+<tr>
+<td>Pages that update content with AJAX</td>
+<td>Call <code>window.DWAOAccessibility.reinit()</code> after the update</td>
+</tr>
+</tbody></table>
+<h2>Troubleshooting</h2>
+<ul>
+<li><strong>404 for init.js:</strong> the file is under <code>WEB-INF/</code>, or the <code>src</code> path does not match where it was copied. Open the script URL in the browser to check.</li>
+<li><strong>404 for init.js in Spring MVC:</strong> the <code>DispatcherServlet</code> is handling static files. Map the folder as a static resource (for example <code>&lt;mvc:resources mapping=&quot;/assets/**&quot; location=&quot;/assets/&quot;/&gt;</code>).</li>
+<li><strong>Two panels:</strong> <code>accessibility-widget.jsp</code> is included twice on the page. Include it once.</li>
+<li><strong>Text size not applied to AJAX-loaded content:</strong> call <code>reinit()</code> after the update (Step 4).</li>
+<li><strong>Button missing:</strong> <code>id=&quot;accessibilityToggleBtn&quot;</code> must exist once on the page, before the script tag.</li>
+</ul>
+
+  <h2>Support</h2>
+  <p>For technical support or questions, contact your DWAO representative.</p>
+
+</main>
+<footer>© 2026 DWAO. All rights reserved. — DWAO Accessibility Widget v2.0.0</footer>
+</body>
+</html>
