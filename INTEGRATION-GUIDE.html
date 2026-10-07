@@ -80,6 +80,7 @@
       <tr><td><code>data-position</code></td><td><code>bottom-left</code>, <code>bottom-right</code>, <code>top-left</code>, <code>top-right</code></td><td><code>bottom-left</code></td><td>Where the button and panel appear</td></tr>
       <tr><td><code>data-theme</code></td><td><code>pnb</code> (#007abc), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td><td><code>pnb</code></td><td>Accent colour of the button and panel</td></tr>
       <tr><td><code>data-brand-color</code></td><td>Hex colour: <code>#rgb</code>, <code>#rrggbb</code> or <code>#rrggbbaa</code></td><td>—</td><td>Overrides <code>data-theme</code>. Any value that is not a hex colour is ignored and the theme colour is used.</td></tr>
+      <tr><td><code>data-page-lang</code></td><td>BCP 47 code, e.g. <code>en</code>, <code>en-IN</code>, <code>hi</code></td><td>—</td><td>Language of your page content. Used only if <code>&lt;html&gt;</code> has no <code>lang</code> attribute.</td></tr>
       <tr><td><code>data-lang</code></td><td><code>en</code></td><td><code>en</code></td><td>Reserved. The panel is English-only in v2.0.0 and this attribute currently has no effect.</td></tr>
     </tbody>
   </table>
@@ -101,11 +102,11 @@
   <table>
     <thead><tr><th scope="col">Automatic fix</th><th scope="col">What it does</th></tr></thead>
     <tbody>
-      <tr><td>Field labels</td><td>Copies the <code>name</code> attribute into <code>aria-label</code> on any input, select or textarea that has a <code>name</code> but no <code>aria-label</code>. Fields with a <code>&lt;label&gt;</code> are included, and <code>aria-label</code> then takes precedence, so give important fields a meaningful <code>name</code> or their own <code>aria-label</code>.</td></tr>
+      <tr><td>Field labels</td><td>Copies the <code>name</code> attribute into <code>aria-label</code> only on inputs, selects and textareas that have no accessible name at all (no <code>&lt;label&gt;</code>, <code>aria-label</code>, <code>aria-labelledby</code>, <code>title</code> or <code>placeholder</code>). Fields you have labelled are never changed. This is a last resort; give every field a visible <code>&lt;label&gt;</code>.</td></tr>
       <tr><td>Iframe titles</td><td>Gives untitled iframes a title such as "Embedded content from example.com"</td></tr>
       <tr><td>Password paste</td><td>Removes <code>onpaste="return false"</code> from password fields so password managers work. The value is never read.</td></tr>
       <tr><td>Skip link</td><td>Inserts a "Skip to main content" link pointing at <code>&lt;main&gt;</code> (or the first <code>&lt;h1&gt;</code>) unless the page already has one</td></tr>
-      <tr><td>Page language</td><td>Sets <code>&lt;html lang&gt;</code> from the browser language if it is missing</td></tr>
+      <tr><td>Page language</td><td>If <code>&lt;html lang&gt;</code> is missing, sets it from <code>data-page-lang</code>, or as a last resort guesses from the visitor's browser language and logs a console warning. Set <code>lang</code> on <code>&lt;html&gt;</code> yourself.</td></tr>
       <tr><td>Zoom</td><td>Removes <code>user-scalable=no</code> and raises <code>maximum-scale</code> to at least 2 in the viewport meta tag</td></tr>
     </tbody>
   </table>
