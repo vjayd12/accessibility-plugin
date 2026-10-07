@@ -21,7 +21,7 @@
     })();
   var CONFIG = {
     position: _scriptTag.getAttribute("data-position") || "bottom-left",
-    theme: _scriptTag.getAttribute("data-theme") || "pnb",
+    theme: _scriptTag.getAttribute("data-theme") || "default",
     brandColor: _scriptTag.getAttribute("data-brand-color") || "",
     lang: _scriptTag.getAttribute("data-lang") || "en",
     pageLang: _scriptTag.getAttribute("data-page-lang") || "",
@@ -30,7 +30,7 @@
     purple: "#663db3",
     blue: "#0073BB",
     green: "#00875A",
-    pnb: "#007abc",
+    default: "#007abc",
   };
   // Only accept a hex colour so data-brand-color can't inject CSS
   var BRAND =
@@ -262,22 +262,22 @@
     "    max-height: 82vh; border-radius: 10px;\n" +
     "  }\n" +
     "}\n" +
-    ".accessibility-panel button:not(.option-card):not(.reset-all) {\n" +
+    ".accessibility-panel button:not(.option-card):not(.reset-all-acc) {\n" +
     "  background: none !important; border: none; box-shadow: none;\n" +
     "  padding: 0; margin: 0; cursor: pointer;\n" +
     "}\n" +
     ".panel-header { display: flex; align-items: center; justify-content: space-between; width: 100%; }\n" +
     ".panel-header h2 { margin: 0; font-size: 24px; font-weight: 500; color: #111; line-height: 28.8px; }\n" +
-    ".close-btn {\n" +
+    ".close-btn-acc {\n" +
     "  background: none; border: none; cursor: pointer;\n" +
     "  padding: 0; width: 24px; height: 24px;\n" +
     "  color: #111; transition: color 0.2s ease;\n" +
     "}\n" +
-    ".close-btn:hover { color: " +
+    ".close-btn-acc:hover { color: " +
     BRAND +
     "; }\n" +
     ".panel-content { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; width: 100%; }\n" +
-    ".reset-all {\n" +
+    ".reset-all-acc {\n" +
     "  align-self: flex-end; font-weight: 500;\n" +
     "  color: " +
     BRAND +
@@ -286,7 +286,7 @@
     "  display: flex; align-items: center; gap: 4px;\n" +
     "  background: none; border: none; padding: 0; margin: 0; font-family: inherit;\n" +
     "}\n" +
-    ".reset-all .dwao-icon { color: " +
+    ".reset-all-acc .dwao-icon { color: " +
     BRAND +
     "; width: 20px; height: 20px; }\n" +
     ".scroll-area { position: relative; width: 100%; max-height: calc(100vh - 200px); overflow-y: auto; padding-right: 8px; }\n" +
@@ -977,7 +977,7 @@
       "button",
       {
         type: "button",
-        class: "close-btn",
+        class: "close-btn-acc",
         "aria-label": "Close accessibility panel",
       },
       [closeIcon],
@@ -987,7 +987,7 @@
   function buildAccessibilityPanel() {
     try {
       var resetIcon = svgIcon("reset");
-      var reset = createEl("button", { type: "button", class: "reset-all" });
+      var reset = createEl("button", { type: "button", class: "reset-all-acc" });
       reset.appendChild(resetIcon);
       reset.appendChild(createEl("span", { text: "Reset All" }));
 
@@ -1021,10 +1021,14 @@
       '<span aria-hidden="true">&times;</span></button>' +
       '<h2 id="dwao-sr-title">Settings for the Screen Reader</h2>' +
       "<p>Hover over content, or move to it with the Tab key, to hear it read aloud.</p>" +
-      '<label>Voice:<select class="voice-select"></select></label>' +
-      '<label>Volume:<input type="range" class="volume-slider" min="0" max="1" step="0.1" value="1"></label>' +
-      '<label>Rate:<input type="range" class="rate-slider" min="0.5" max="2" step="0.1" value="1"></label>' +
-      '<label>Pitch:<input type="range" class="pitch-slider" min="0" max="2" step="0.1" value="1"></label>' +
+      '<label for="dwao-sr-voice">Voice:</label>' +
+      '<select id="dwao-sr-voice" class="voice-select" aria-label="Voice"></select>' +
+      '<label for="dwao-sr-volume">Volume:</label>' +
+      '<input type="range" id="dwao-sr-volume" class="volume-slider" aria-label="Volume" min="0" max="1" step="0.1" value="1">' +
+      '<label for="dwao-sr-rate">Rate:</label>' +
+      '<input type="range" id="dwao-sr-rate" class="rate-slider" aria-label="Reading rate" min="0.5" max="2" step="0.1" value="1">' +
+      '<label for="dwao-sr-pitch">Pitch:</label>' +
+      '<input type="range" id="dwao-sr-pitch" class="pitch-slider" aria-label="Pitch" min="0" max="2" step="0.1" value="1">' +
       '<div class="reader-controls">' +
       '<button type="button" class="btn-start primary">Start</button>' +
       '<button type="button" class="btn-pause">Pause</button>' +
@@ -1034,29 +1038,59 @@
     document.body.appendChild(srPanel);
 
     var voiceSelect = srPanel.querySelector(".voice-select");
+    // Option values are indexes into the full synth.getVoices() list, which
+    // is what speakText() looks the voice up in.
     function populateVoices() {
       if (!synth) return;
       var voices = synth.getVoices();
+      var previous = voiceSelect.value;
       voiceSelect.textContent = "";
       var allowedLangs = ["en-US", "en-IN", "en-GB"];
       var filtered = voices.filter(function (v) {
         return allowedLangs.indexOf(v.lang) !== -1;
       });
-      (filtered.length ? filtered : voices).forEach(function (v, i) {
+      (filtered.length ? filtered : voices).forEach(function (v) {
         var opt = document.createElement("option");
-        opt.value = i;
+        opt.value = voices.indexOf(v);
         opt.textContent = v.name + " (" + v.lang + ")";
         voiceSelect.appendChild(opt);
       });
-      var idx = filtered.findIndex(function (v) {
+      if (previous && voiceSelect.querySelector('option[value="' + previous + '"]')) {
+        voiceSelect.value = previous;
+        return;
+      }
+      var idx = voices.findIndex(function (v) {
         return v.lang === "en-IN";
       });
-      voiceSelect.value = idx !== -1 ? idx : 0;
+      if (idx !== -1 && voiceSelect.querySelector('option[value="' + idx + '"]')) {
+        voiceSelect.value = idx;
+      }
     }
     populateVoices();
-    if (synth && synth.onvoiceschanged !== undefined) {
-      synth.onvoiceschanged = populateVoices;
+    if (synth && synth.addEventListener) {
+      synth.addEventListener("voiceschanged", populateVoices);
     }
+
+    // Screen readers announce these instead of the raw slider numbers
+    var sliderText = {
+      ".volume-slider": function (v) {
+        return Math.round(v * 100) + "%";
+      },
+      ".rate-slider": function (v) {
+        return v.toFixed(1) + " times";
+      },
+      ".pitch-slider": function (v) {
+        return v.toFixed(1);
+      },
+    };
+    Object.keys(sliderText).forEach(function (sel) {
+      var input = srPanel.querySelector(sel);
+      function update() {
+        input.setAttribute("aria-valuetext", sliderText[sel](parseFloat(input.value)));
+      }
+      update();
+      input.addEventListener("input", update);
+    });
   }
 
   buildAccessibilityPanel();
@@ -1101,7 +1135,7 @@
       if (!visible) {
         var sr = document.querySelector(".screen-reader-popup");
         if (sr) sr.style.display = "none";
-        var firstControl = panel.querySelector(".close-btn");
+        var firstControl = panel.querySelector(".close-btn-acc");
         if (firstControl) firstControl.focus();
       }
     };
@@ -1909,6 +1943,11 @@
   }
 
   // ── Read Page via screen reader popup ──────────────────
+  // Speech state is shared across opens: the popup's controls are bound once,
+  // on the first open, but hover reading is rebound on every open.
+  var utterance;
+  var lastSpokenText = "";
+  var currentCharIndex = 0;
   function toggleReadPage() {
     if (!window.speechSynthesis) return;
     var panelEl = document.querySelector(".accessibility-panel");
@@ -1924,22 +1963,13 @@
     var rateInput = srUI.querySelector(".rate-slider");
     var pitchInput = srUI.querySelector(".pitch-slider");
 
-    var utterance;
-    var lastSpokenText = "";
-    var currentCharIndex = 0;
-    var voices = synth.getVoices();
-    if (!voices.length) {
-      synth.onvoiceschanged = function () {
-        voices = synth.getVoices();
-      };
-    }
-
     function speakText(text, startIndex) {
       startIndex = startIndex || 0;
       stopReading();
       lastSpokenText = text;
       utterance = new SpeechSynthesisUtterance(text.substring(startIndex));
-      utterance.voice = voices[voiceSelect.value] || voices[0];
+      var voices = synth.getVoices();
+      utterance.voice = voices[voiceSelect.value] || voices[0] || null;
       utterance.volume = parseFloat(volumeInput.value);
       utterance.rate = parseFloat(rateInput.value);
       utterance.pitch = parseFloat(pitchInput.value);
@@ -1971,6 +2001,8 @@
     }
 
     [volumeInput, rateInput, pitchInput].forEach(function (input) {
+      if (input._bound) return;
+      input._bound = true;
       input.addEventListener("input", applyUpdatedSettings);
     });
 
@@ -2591,8 +2623,8 @@
   function initAccessibilityHandlers() {
     var triggers = document.querySelectorAll(".accordion-trigger");
     var cards = document.querySelectorAll(".option-card:not(.empty)");
-    var resetBtn = document.querySelector(".reset-all");
-    var closeBtn = document.querySelector(".close-btn");
+    var resetBtn = document.querySelector(".reset-all-acc");
+    var closeBtn = document.querySelector(".close-btn-acc");
 
     triggers.forEach(function (trigger) {
       trigger.addEventListener("click", function () {
