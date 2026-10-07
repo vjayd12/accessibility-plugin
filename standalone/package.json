@@ -1,0 +1,19 @@
+{
+  "name": "dwao-a11y-audit",
+  "version": "1.0.0",
+  "description": "WCAG 2.2 accessibility scanner — audit pages across your codebase or dev server from the command line",
+  "license": "UNLICENSED",
+  "bin": {
+    "dwao-a11y-scan": "bin/cli.js"
+  },
+  "main": "src/audit-engine.js",
+  "scripts": {
+    "scan": "node bin/cli.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "playwright-core": "^1.61.1"
+  }
+}

@@ -1764,15 +1764,21 @@
 
   window.__dwaoA11y={destroy:cleanup};
   window.__dwaoA11yLoaded=true;
-  setupOverlay(); buildSidebar(); showHome();
 
-  chrome.runtime.onMessage.addListener((msg,_,res)=>{
-    if(msg.action==='open'){
+  // ── Standalone public API ────────────────────────────────────────────────
+  // This build is maintained independently of the browser-extension content
+  // script — no chrome.* messaging here, just a plain window API.
+  window.DWAOAudit={
+    open(feature){
       cleanup();
       setupOverlay(); buildSidebar(); showHome();
-      if(msg.feature) FEATURES[msg.feature]?.();
-      res({ok:true});
-    }
-    if(msg.action==='close'){ cleanup(); res({ok:true}); }
-  });
+      if(feature) FEATURES[feature]?.();
+    },
+    close:cleanup,
+    toggle(){ window.__dwaoA11yLoaded ? cleanup() : window.DWAOAudit.open(); },
+  };
+
+  const _script=document.currentScript;
+  const _autorun=!_script || _script.getAttribute('data-autorun')!=='false';
+  if(_autorun){ setupOverlay(); buildSidebar(); showHome(); }
 })();
