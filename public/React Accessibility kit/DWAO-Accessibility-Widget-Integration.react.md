@@ -77,7 +77,7 @@ A complete Vite `index.html`:
     </div>
 
     <script type="module" src="/src/main.jsx"></script>
-    <script src="/init.js" data-position="bottom-left" data-theme="pnb"></script>
+    <script src="/init.js" data-position="bottom-left" data-theme="default"></script>
   </body>
 </html>
 ```
@@ -160,7 +160,7 @@ Set these `data-*` attributes on the widget's script tag. All are optional.
 | Attribute          | Values                                                                              | Default       | Description                                                                |
 | ------------------ | ----------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
 | `data-position`    | `bottom-left`, `bottom-right`, `top-left`, `top-right`                              | `bottom-left` | Where the button and panel appear                                          |
-| `data-theme`       | `pnb` (#007abc), `purple` (#663db3), `blue` (#0073BB), `green` (#00875A)            | `pnb`         | Accent colour                                                              |
+| `data-theme`       | `default` (#007abc), `purple` (#663db3), `blue` (#0073BB), `green` (#00875A)        | `default`     | Accent colour                                                              |
 | `data-brand-color` | Hex colour, e.g. `#e63946`                                                          | —             | Overrides `data-theme`. Non-hex values are ignored.                        |
 | `data-lang`        | `en`                                                                                | `en`          | Reserved. The panel is English-only in v2.0.0 and this has no effect.      |
 

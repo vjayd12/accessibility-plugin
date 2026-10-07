@@ -85,7 +85,7 @@ src/
     &lt;/div&gt;
 
     &lt;script type="module" src="/src/main.jsx"&gt;&lt;/script&gt;
-    &lt;script src="/init.js" data-position="bottom-left" data-theme="pnb"&gt;&lt;/script&gt;
+    &lt;script src="/init.js" data-position="bottom-left" data-theme="default"&gt;&lt;/script&gt;
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
       <p class="note"><strong>Load it once, from <code>index.html</code>.</strong> Do not inject the script from a component or <code>useEffect</code>. React StrictMode runs effects twice, and each load creates another panel. If your app is served from a sub-path, prefix the path to match (for example <code>/my-app/init.js</code>).</p>
@@ -150,7 +150,7 @@ export default function App() {
     <thead><tr><th scope="col">Attribute</th><th scope="col">Values</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead>
     <tbody>
       <tr><td><code>data-position</code></td><td><code>bottom-left</code>, <code>bottom-right</code>, <code>top-left</code>, <code>top-right</code></td><td><code>bottom-left</code></td><td>Where the button and panel appear</td></tr>
-      <tr><td><code>data-theme</code></td><td><code>pnb</code> (#007abc), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td><td><code>pnb</code></td><td>Accent colour</td></tr>
+      <tr><td><code>data-theme</code></td><td><code>default</code> (#007abc), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td><td><code>default</code></td><td>Accent colour</td></tr>
       <tr><td><code>data-brand-color</code></td><td>Hex colour, e.g. <code>#e63946</code></td><td>—</td><td>Overrides <code>data-theme</code>. Non-hex values are ignored.</td></tr>
       <tr><td><code>data-page-lang</code></td><td>BCP 47 code, e.g. <code>en</code>, <code>en-IN</code>, <code>hi</code></td><td>—</td><td>Language of your page content. Used only if <code>&lt;html&gt;</code> has no <code>lang</code> attribute.</td></tr>
       <tr><td><code>data-lang</code></td><td><code>en</code></td><td><code>en</code></td><td>Reserved. The panel is English-only in v2.0.0 and this attribute has no effect.</td></tr>
