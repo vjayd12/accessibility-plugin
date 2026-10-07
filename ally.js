@@ -225,16 +225,16 @@
     "}\n" +
     ".panel-header { display: flex; align-items: center; justify-content: space-between; width: 100%; }\n" +
     ".panel-header h1 { font-size: 24px; font-weight: 500; color: #111; line-height: 28.8px; }\n" +
-    ".close-btn {\n" +
+    ".close-btn-acc {\n" +
     "  background: none; border: none; cursor: pointer;\n" +
     "  padding: 0; width: 24px; height: 24px;\n" +
     "  color: #111; transition: color 0.2s ease;\n" +
     "}\n" +
-    ".close-btn:hover { color: " +
+    ".close-btn-acc:hover { color: " +
     BRAND +
     "; }\n" +
     ".panel-content { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; width: 100%; }\n" +
-    ".reset-all {\n" +
+    ".reset-all-acc {\n" +
     "  align-self: flex-end; font-weight: 500;\n" +
     "  color: " +
     BRAND +
@@ -242,7 +242,7 @@
     "  cursor: pointer; transition: color 0.2s ease;\n" +
     "  display: flex; align-items: center; gap: 4px;\n" +
     "}\n" +
-    ".reset-all .dwao-icon { color: " +
+    ".reset-all-acc .dwao-icon { color: " +
     BRAND +
     "; width: 20px; height: 20px; }\n" +
     ".scroll-area { position: relative; width: 100%; max-height: calc(100vh - 200px); overflow-y: auto; padding-right: 8px; }\n" +
@@ -331,7 +331,7 @@
     "}\n" +
     ".option-steps li.active { background-color: #000; }\n" +
     ".option-card.active .option-steps li.active { background-color: #fff; }\n" +
-    ".option-card:focus, .close-btn:focus { outline: 2px solid " +
+    ".option-card:focus, .close-btn-acc:focus { outline: 2px solid " +
     BRAND +
     "; outline-offset: 2px; }\n" +
     ".card-content { padding: 24px 20px 20px; display: flex; flex-direction: column; gap: 16px; }\n" +
@@ -900,7 +900,7 @@
     createEl("h1", { innerHTML: "Accessibility" }),
     createEl(
       "button",
-      { class: "close-btn", "aria-label": "Close accessibility panel" },
+      { class: "close-btn-acc", "aria-label": "Close accessibility panel" },
       [closeIcon],
     ),
   ]);
@@ -908,7 +908,7 @@
   function buildAccessibilityPanel() {
     try {
       var resetIcon = svgIcon("reset");
-      var reset = createEl("div", { class: "reset-all" });
+      var reset = createEl("div", { class: "reset-all-acc" });
       reset.appendChild(resetIcon);
       reset.appendChild(createEl("span", { innerHTML: "Reset All" }));
 
@@ -2269,8 +2269,8 @@
   function initAccessibilityHandlers() {
     var triggers = document.querySelectorAll(".accordion-trigger");
     var cards = document.querySelectorAll(".option-card:not(.empty)");
-    var resetBtn = document.querySelector(".reset-all");
-    var closeBtn = document.querySelector(".close-btn");
+    var resetBtn = document.querySelector(".reset-all-acc");
+    var closeBtn = document.querySelector(".close-btn-acc");
 
     triggers.forEach(function (trigger) {
       trigger.addEventListener("click", function () {
