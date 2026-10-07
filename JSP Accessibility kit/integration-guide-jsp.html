@@ -74,7 +74,7 @@
   &lt;button id=&quot;accessibilityToggleBtn&quot;&gt;&lt;/button&gt;
 &lt;/div&gt;
 &lt;script src=&quot;${pageContext.request.contextPath}/assets/vendor/dwao-accessibility/init.js&quot;
-        data-position=&quot;bottom-left&quot; data-theme=&quot;pnb&quot;&gt;&lt;/script&gt;
+        data-position=&quot;bottom-left&quot; data-theme=&quot;default&quot;&gt;&lt;/script&gt;
 </code></pre>
 <p class="note"><strong>Keep <code>init.js</code> out of <code>WEB-INF/</code>.</strong> The server never sends files from <code>WEB-INF/</code> to the browser, so the script would return 404. If you copy it to a different folder, update the <code>src</code> path to match.</p>
 <h3><span class="step">3</span>Include It on Every Page</h3>
@@ -122,13 +122,13 @@ window.DWAOAccessibility &amp;&amp; window.DWAOAccessibility.reinit();
 <tbody><tr>
 <td><code>data-position</code></td>
 <td><code>bottom-left</code>, <code>bottom-right</code>, <code>top-left</code>, <code>top-right</code></td>
-<td><code>bottom-left</code></td>
+<td><code>bottom-right</code></td>
 <td>Where the button and panel appear</td>
 </tr>
 <tr>
 <td><code>data-theme</code></td>
-<td><code>pnb</code> (#007abc), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td>
-<td><code>pnb</code></td>
+<td><code>default</code> (#007abc), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td>
+<td><code>default</code></td>
 <td>Accent colour</td>
 </tr>
 <tr>
@@ -136,6 +136,12 @@ window.DWAOAccessibility &amp;&amp; window.DWAOAccessibility.reinit();
 <td>Hex colour, e.g. <code>#e63946</code></td>
 <td>—</td>
 <td>Overrides <code>data-theme</code>. Non-hex values are ignored.</td>
+</tr>
+<tr>
+<td><code>data-page-lang</code></td>
+<td>BCP 47 code, e.g. <code>en</code>, <code>en-IN</code>, <code>hi</code></td>
+<td>—</td>
+<td>Language of your page content. Used only if <code>&lt;html&gt;</code> has no <code>lang</code> attribute.</td>
 </tr>
 <tr>
 <td><code>data-lang</code></td>

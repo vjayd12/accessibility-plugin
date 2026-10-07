@@ -20,22 +20,61 @@
       return s[s.length - 1];
     })();
   var CONFIG = {
-    position: _scriptTag.getAttribute("data-position") || "bottom-left",
-    theme: _scriptTag.getAttribute("data-theme") || "pnb",
+    position: _scriptTag.getAttribute("data-position") || "bottom-right",
+    theme: _scriptTag.getAttribute("data-theme") || "default",
     brandColor: _scriptTag.getAttribute("data-brand-color") || "",
     lang: _scriptTag.getAttribute("data-lang") || "en",
+    pageLang: _scriptTag.getAttribute("data-page-lang") || "",
   };
   var THEME_COLORS = {
     purple: "#663db3",
     blue: "#0073BB",
     green: "#00875A",
-    pnb: "#007abc",
+    default: "#007abc",
   };
   // Only accept a hex colour so data-brand-color can't inject CSS
   var BRAND =
     (/^#[0-9a-f]{3,8}$/i.test(CONFIG.brandColor) && CONFIG.brandColor) ||
     THEME_COLORS[CONFIG.theme] ||
     "#007abc";
+
+  // BRAND is used for text on the #f9f9f9 panel and behind white text, so
+  // darken it until it reaches 4.5:1 against #f9f9f9 (WCAG 1.4.3).
+  BRAND = (function (hex) {
+    var h = hex.slice(1);
+    if (h.length === 3 || h.length === 4)
+      h = h.replace(/./g, function (c) {
+        return c + c;
+      });
+    if (h.length !== 6 && h.length !== 8) return hex;
+    var rgb = [0, 2, 4].map(function (i) {
+      return parseInt(h.substr(i, 2), 16);
+    });
+    function lum(c) {
+      var l = c.map(function (v) {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * l[0] + 0.7152 * l[1] + 0.0722 * l[2];
+    }
+    var bg = lum([249, 249, 249]);
+    var changed = false;
+    while ((bg + 0.05) / (lum(rgb) + 0.05) < 4.5) {
+      rgb = rgb.map(function (v) {
+        return Math.floor(v * 0.95);
+      });
+      changed = true;
+    }
+    if (!changed) return hex;
+    return (
+      "#" +
+      rgb
+        .map(function (v) {
+          return ("0" + v.toString(16)).slice(-2);
+        })
+        .join("")
+    );
+  })(BRAND);
 
   // ── Inline SVG Icons (24x24, no external dependencies) ─
   var ICONS = {
@@ -112,6 +151,7 @@
     div.style.height = "24px";
     div.style.color = BRAND;
     div.className = "dwao-icon";
+    div.setAttribute("aria-hidden", "true");
     return div;
   }
 
@@ -222,30 +262,31 @@
     "    max-height: 82vh; border-radius: 10px;\n" +
     "  }\n" +
     "}\n" +
-    ".accessibility-panel button {\n" +
+    ".accessibility-panel button:not(.option-card):not(.reset-all-acc) {\n" +
     "  background: none !important; border: none; box-shadow: none;\n" +
     "  padding: 0; margin: 0; cursor: pointer;\n" +
     "}\n" +
     ".panel-header { display: flex; align-items: center; justify-content: space-between; width: 100%; }\n" +
-    ".panel-header h1 { font-size: 24px; font-weight: 500; color: #111; line-height: 28.8px; }\n" +
-    ".close-btn {\n" +
+    ".panel-header h2 { margin: 0; font-size: 24px; font-weight: 500; color: #111; line-height: 28.8px; }\n" +
+    ".close-btn-acc {\n" +
     "  background: none; border: none; cursor: pointer;\n" +
     "  padding: 0; width: 24px; height: 24px;\n" +
     "  color: #111; transition: color 0.2s ease;\n" +
     "}\n" +
-    ".close-btn:hover { color: " +
+    ".close-btn-acc:hover { color: " +
     BRAND +
     "; }\n" +
     ".panel-content { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; width: 100%; }\n" +
-    ".reset-all {\n" +
+    ".reset-all-acc {\n" +
     "  align-self: flex-end; font-weight: 500;\n" +
     "  color: " +
     BRAND +
     "; font-size: 16px;\n" +
     "  cursor: pointer; transition: color 0.2s ease;\n" +
     "  display: flex; align-items: center; gap: 4px;\n" +
+    "  background: none; border: none; padding: 0; margin: 0; font-family: inherit;\n" +
     "}\n" +
-    ".reset-all .dwao-icon { color: " +
+    ".reset-all-acc .dwao-icon { color: " +
     BRAND +
     "; width: 20px; height: 20px; }\n" +
     ".scroll-area { position: relative; width: 100%; max-height: calc(100vh - 200px); overflow-y: auto; padding-right: 8px; }\n" +
@@ -263,7 +304,7 @@
     "}\n" +
     "@media (max-width: 768px) { .accordion-item-acces { width: 100%; padding: 14px 12px; } }\n" +
     ".accordion-trigger {\n" +
-    "  display: flex; align-items: center; justify-content: space-between;\n" +
+    "  display: flex; align-items: center; justify-content: space-between; min-height: 24px;\n" +
     "  width: 100%; background: none; border: none;\n" +
     "  cursor: pointer; font-size: 18px; font-weight: 400;\n" +
     "  color: " +
@@ -276,11 +317,11 @@
     ".accordion-icon { transition: transform 0.2s ease; color: #111; }\n" +
     ".accordion-item-acces.active .accordion-icon { transform: rotate(180deg); }\n" +
     ".accordion-content {\n" +
-    "  max-height: 0; overflow: hidden;\n" +
-    "  transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1), padding-top 0.3s cubic-bezier(0.4,0,0.2,1);\n" +
+    "  max-height: 0; overflow: hidden; visibility: hidden;\n" +
+    "  transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1), padding-top 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.3s;\n" +
     "  padding-top: 0;\n" +
     "}\n" +
-    ".accordion-item-acces.active .accordion-content { max-height: 500px; padding-top: 24px; }\n" +
+    ".accordion-item-acces.active .accordion-content { max-height: 500px; padding-top: 24px; visibility: visible; }\n" +
     ".options-grid { display: grid ; grid-template-columns: repeat(3, 1fr) ; gap: 12px ; width: 100% ; }\n" +
     ".options-row { display: contents  }\n" +
     ".option-card {\n" +
@@ -290,6 +331,7 @@
     "  border: 1px solid rgba(17,17,17,0.2); border-radius: 12px;\n" +
     "  cursor: pointer; transition: all 0.2s cubic-bezier(0.4,0,0.2,1);\n" +
     "  position: relative; width: 100%; min-width: 0; box-sizing: border-box;\n" +
+    "  margin: 0; font-family: inherit; color: inherit; -webkit-appearance: none; appearance: none;\n" +
     "}\n" +
     "@media (max-width: 768px) {\n" +
     "  .option-card { height: 88px; padding: 10px 6px; }\n" +
@@ -334,9 +376,17 @@
     "}\n" +
     ".option-steps li.active { background-color: #000; }\n" +
     ".option-card.active .option-steps li.active { background-color: #fff; }\n" +
-    ".option-card:focus, .close-btn:focus { outline: 2px solid " +
+    ".accessibility-panel button:focus-visible, #accessibilityToggleBtn:focus-visible,\n" +
+    ".screen-reader-popup button:focus-visible, .screen-reader-popup select:focus-visible,\n" +
+    ".screen-reader-popup input:focus-visible, #pageList button:focus-visible,\n" +
+    "#keyboardWrapper button:focus-visible { outline: 2px solid " +
     BRAND +
-    "; outline-offset: 2px; }\n" +
+    " !important; outline-offset: 2px; }\n" +
+    ".as-card-content .dwao-ps-item {\n" +
+    "  display: block; width: 100%; padding: 0; margin: 0; border: none; background: none;\n" +
+    "  font: inherit; color: inherit; text-align: left; cursor: pointer;\n" +
+    "}\n" +
+    ".dwao-ps-close { position: absolute; top: 14px; right: 14px; padding: 0; border: none; background: none; cursor: pointer; color: #fff; }\n" +
     ".card-content { padding: 24px 20px 20px; display: flex; flex-direction: column; gap: 16px; }\n" +
     ".as-card-content { padding: 0; margin: 0; list-style: none; }\n" +
     ".as-card-content li {\n" +
@@ -425,7 +475,7 @@
     "  box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 9999;\n" +
     "  font-family: inherit; display: none;\n" +
     "}\n" +
-    ".screen-reader-popup h4 { font-size: 18px; margin: 0 0 8px; color: " +
+    ".screen-reader-popup h2 { font-size: 18px; margin: 0 0 8px; color: " +
     BRAND +
     "; font-weight: 600; }\n" +
     ".screen-reader-popup p { font-size: 13px; margin: 0 0 12px; color: #444; }\n" +
@@ -440,7 +490,7 @@
     "  border: 1px solid #ccd6e8; border-radius: 6px; font-size: 13px;\n" +
     "}\n" +
     '.screen-reader-popup input[type="range"] {\n' +
-    "  width: 100%; margin-top: 4px; appearance: auto;\n" +
+    "  width: 100%; height: 24px; margin-top: 4px; appearance: auto;\n" +
     "  cursor: default;\n" +
     "  color: light-dark(rgb(16, 16, 16), rgb(255, 255, 255));\n" +
     "  padding: initial;\n" +
@@ -503,7 +553,7 @@
     "  .accessibility-panel { left: 8px; right: 8px; padding: 12px; }\n" +
     "  .accordion-content .options-grid { gap: 8px; }\n" +
     "  .option-card { height: 80px; padding: 8px 4px; }\n" +
-    "  .panel-header h1 { font-size: 18px; }\n" +
+    "  .panel-header h2 { font-size: 18px; }\n" +
     "}\n" +
     "";
 
@@ -808,9 +858,13 @@
   // ── Build UI Components ────────────────────────────────
   function createOptionCard(option) {
     var label = option.label || "";
-    var card = createEl("div", {
+    var card = createEl("button", {
+      type: "button",
       class: "option-card " + (option.cardClass || ""),
       datakey: option.dataUniqueKey || "",
+      "aria-pressed": "false",
+      "aria-label": label,
+      "data-label": label,
     });
 
     card.appendChild(svgIcon(option.iconKey));
@@ -830,6 +884,7 @@
     if (option.variation && typeof option.steps === "number") {
       var ul = createEl("ul", {
         class: ("option-steps " + (option.stepClass || "")).trim(),
+        "aria-hidden": "true",
       });
       for (var i = 0; i < option.steps; i++) ul.appendChild(createEl("li"));
       card.appendChild(ul);
@@ -864,15 +919,22 @@
     chevron.style.height = "15px";
     chevron.style.color = "#111";
 
+    var contentId = "dwao-acc-" + section.id;
     var trigger = createEl(
       "button",
-      { class: "accordion-trigger", "data-target": section.id },
+      {
+        type: "button",
+        class: "accordion-trigger",
+        "data-target": contentId,
+        "aria-expanded": "false",
+        "aria-controls": contentId,
+      },
       [createEl("span", { text: section.title }), chevron],
     );
 
     var content = createEl("div", {
       class: "accordion-content",
-      id: section.id,
+      id: contentId,
     });
     var grid = createEl("div", { class: "options-grid" });
 
@@ -894,7 +956,12 @@
   }
 
   // ── Build Panel ────────────────────────────────────────
-  var panel = createEl("div", { class: "accessibility-panel" });
+  var panel = createEl("div", {
+    class: "accessibility-panel",
+    id: "dwao-a11y-panel",
+    role: "dialog",
+    "aria-labelledby": "dwao-a11y-panel-title",
+  });
   var pageList = createEl("div", { id: "pageList" });
   pageList.style.display = "none";
   document.body.appendChild(pageList);
@@ -905,10 +972,14 @@
   closeIcon.style.color = "#111";
 
   var header = createEl("div", { class: "panel-header" }, [
-    createEl("h1", { text: "Accessibility" }),
+    createEl("h2", { id: "dwao-a11y-panel-title", text: "Accessibility" }),
     createEl(
       "button",
-      { class: "close-btn", "aria-label": "Close accessibility panel" },
+      {
+        type: "button",
+        class: "close-btn-acc",
+        "aria-label": "Close accessibility panel",
+      },
       [closeIcon],
     ),
   ]);
@@ -916,7 +987,7 @@
   function buildAccessibilityPanel() {
     try {
       var resetIcon = svgIcon("reset");
-      var reset = createEl("div", { class: "reset-all" });
+      var reset = createEl("button", { type: "button", class: "reset-all-acc" });
       reset.appendChild(resetIcon);
       reset.appendChild(createEl("span", { text: "Reset All" }));
 
@@ -939,47 +1010,87 @@
 
   // ── Build Screen Reader Popup ──────────────────────────
   function buildScreenReaderPanel() {
-    var srPanel = createEl("div", { class: "screen-reader-popup" });
+    var srPanel = createEl("div", {
+      class: "screen-reader-popup",
+      role: "dialog",
+      "aria-labelledby": "dwao-sr-title",
+      tabindex: "-1",
+    });
     srPanel.innerHTML =
-      '<button class="close-popup">&times;</button>' +
-      "<h4>Settings for the Screen Reader</h4>" +
-      "<p>Hover over content to begin reading.</p>" +
-      '<label>Voice:<select class="voice-select"></select></label>' +
-      '<label>Volume:<input type="range" class="volume-slider" min="0" max="1" step="0.1" value="1"></label>' +
-      '<label>Rate:<input type="range" class="rate-slider" min="0.5" max="2" step="0.1" value="1"></label>' +
-      '<label>Pitch:<input type="range" class="pitch-slider" min="0" max="2" step="0.1" value="1"></label>' +
+      '<button type="button" class="close-popup" aria-label="Close screen reader settings">' +
+      '<span aria-hidden="true">&times;</span></button>' +
+      '<h2 id="dwao-sr-title">Settings for the Screen Reader</h2>' +
+      "<p>Hover over content, or move to it with the Tab key, to hear it read aloud.</p>" +
+      '<label for="dwao-sr-voice">Voice:</label>' +
+      '<select id="dwao-sr-voice" class="voice-select" aria-label="Voice"></select>' +
+      '<label for="dwao-sr-volume">Volume:</label>' +
+      '<input type="range" id="dwao-sr-volume" class="volume-slider" aria-label="Volume" min="0" max="1" step="0.1" value="1">' +
+      '<label for="dwao-sr-rate">Rate:</label>' +
+      '<input type="range" id="dwao-sr-rate" class="rate-slider" aria-label="Reading rate" min="0.5" max="2" step="0.1" value="1">' +
+      '<label for="dwao-sr-pitch">Pitch:</label>' +
+      '<input type="range" id="dwao-sr-pitch" class="pitch-slider" aria-label="Pitch" min="0" max="2" step="0.1" value="1">' +
       '<div class="reader-controls">' +
-      '<button class="btn-start primary">Start</button>' +
-      '<button class="btn-pause">Pause</button>' +
-      '<button class="btn-resume">Resume</button>' +
-      '<button class="btn-stop">Stop</button>' +
+      '<button type="button" class="btn-start primary">Start</button>' +
+      '<button type="button" class="btn-pause">Pause</button>' +
+      '<button type="button" class="btn-resume">Resume</button>' +
+      '<button type="button" class="btn-stop">Stop</button>' +
       "</div>";
     document.body.appendChild(srPanel);
 
     var voiceSelect = srPanel.querySelector(".voice-select");
+    // Option values are indexes into the full synth.getVoices() list, which
+    // is what speakText() looks the voice up in.
     function populateVoices() {
       if (!synth) return;
       var voices = synth.getVoices();
+      var previous = voiceSelect.value;
       voiceSelect.textContent = "";
       var allowedLangs = ["en-US", "en-IN", "en-GB"];
       var filtered = voices.filter(function (v) {
         return allowedLangs.indexOf(v.lang) !== -1;
       });
-      (filtered.length ? filtered : voices).forEach(function (v, i) {
+      (filtered.length ? filtered : voices).forEach(function (v) {
         var opt = document.createElement("option");
-        opt.value = i;
+        opt.value = voices.indexOf(v);
         opt.textContent = v.name + " (" + v.lang + ")";
         voiceSelect.appendChild(opt);
       });
-      var idx = filtered.findIndex(function (v) {
+      if (previous && voiceSelect.querySelector('option[value="' + previous + '"]')) {
+        voiceSelect.value = previous;
+        return;
+      }
+      var idx = voices.findIndex(function (v) {
         return v.lang === "en-IN";
       });
-      voiceSelect.value = idx !== -1 ? idx : 0;
+      if (idx !== -1 && voiceSelect.querySelector('option[value="' + idx + '"]')) {
+        voiceSelect.value = idx;
+      }
     }
     populateVoices();
-    if (synth && synth.onvoiceschanged !== undefined) {
-      synth.onvoiceschanged = populateVoices;
+    if (synth && synth.addEventListener) {
+      synth.addEventListener("voiceschanged", populateVoices);
     }
+
+    // Screen readers announce these instead of the raw slider numbers
+    var sliderText = {
+      ".volume-slider": function (v) {
+        return Math.round(v * 100) + "%";
+      },
+      ".rate-slider": function (v) {
+        return v.toFixed(1) + " times";
+      },
+      ".pitch-slider": function (v) {
+        return v.toFixed(1);
+      },
+    };
+    Object.keys(sliderText).forEach(function (sel) {
+      var input = srPanel.querySelector(sel);
+      function update() {
+        input.setAttribute("aria-valuetext", sliderText[sel](parseFloat(input.value)));
+      }
+      update();
+      input.addEventListener("input", update);
+    });
   }
 
   buildAccessibilityPanel();
@@ -1014,15 +1125,191 @@
       btnLabel.textContent = "Accessibility";
       toggleBtn.appendChild(btnLabel);
     }
+    if (toggleBtn.tagName === "BUTTON" && !toggleBtn.getAttribute("type"))
+      toggleBtn.setAttribute("type", "button");
+    toggleBtn.setAttribute("aria-controls", panel.id);
+    toggleBtn.setAttribute("aria-expanded", "false");
     toggleBtn.onclick = function () {
       var visible = panel.style.display === "block";
       panel.style.display = visible ? "none" : "block";
       if (!visible) {
         var sr = document.querySelector(".screen-reader-popup");
         if (sr) sr.style.display = "none";
+        var firstControl = panel.querySelector(".close-btn-acc");
+        if (firstControl) firstControl.focus();
       }
     };
   }
+
+  // Keep aria-expanded in sync however the panel is shown or hidden, and
+  // return focus to the toggle when the panel closes with focus inside it.
+  var _panelFocusInside = false;
+  panel.addEventListener("focusin", function () {
+    _panelFocusInside = true;
+  });
+  try {
+    new MutationObserver(function () {
+      var open = panel.style.display === "block";
+      if (toggleBtn) toggleBtn.setAttribute("aria-expanded", String(open));
+      if (open) return;
+      var active = document.activeElement;
+      var lost = !active || active === document.body || panel.contains(active);
+      var sr = document.querySelector(".screen-reader-popup");
+      var srOpen = sr && sr.style.display === "block";
+      if (toggleBtn && _panelFocusInside && lost && !srOpen) toggleBtn.focus();
+      _panelFocusInside = false;
+    }).observe(panel, { attributes: true, attributeFilter: ["style"] });
+  } catch (e) {}
+
+  // The panel is modal (WCAG 2.4.11): Tab wraps inside it, and if focus
+  // reaches the page some other way the panel closes rather than covering it.
+  panel.setAttribute("aria-modal", "true");
+  function panelFocusables() {
+    return Array.prototype.filter.call(
+      panel.querySelectorAll("button, [href], input, select, textarea"),
+      function (el) {
+        return !el.disabled && el.getClientRects().length > 0 &&
+          getComputedStyle(el).visibility !== "hidden";
+      },
+    );
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Tab" || panel.style.display !== "block") return;
+    var items = panelFocusables();
+    if (!items.length) return;
+    var first = items[0];
+    var last = items[items.length - 1];
+    var active = document.activeElement;
+    if (e.shiftKey && (active === first || !panel.contains(active))) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && (active === last || !panel.contains(active))) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+  document.addEventListener("focusin", function (e) {
+    if (panel.style.display !== "block") return;
+    if (panel.contains(e.target) || (toggleBtn && toggleBtn.contains(e.target)))
+      return;
+    panel.style.display = "none";
+  });
+
+  // Keep focused page content out from under the widget's fixed-position
+  // UI (toggle button, Read Page popup, virtual keyboard, Page Structure):
+  // reserve scroll padding for them, and scroll anything they still cover.
+  var _hostScrollPad = (function () {
+    try {
+      var cs = getComputedStyle(document.documentElement);
+      return {
+        top: parseFloat(cs.scrollPaddingTop) || 0,
+        bottom: parseFloat(cs.scrollPaddingBottom) || 0,
+      };
+    } catch (e) {
+      return { top: 0, bottom: 0 };
+    }
+  })();
+  function widgetOverlays() {
+    return [
+      toggleBtn,
+      document.querySelector(".screen-reader-popup"),
+      document.getElementById("keyboardWrapper"),
+      document.getElementById("pageList"),
+    ].filter(function (el) {
+      if (!el) return false;
+      var r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && getComputedStyle(el).display !== "none";
+    });
+  }
+  function updateScrollPadding() {
+    try {
+      var vh = window.innerHeight;
+      var top = 0;
+      var bottom = 0;
+      widgetOverlays().forEach(function (el) {
+        if (el.id === "pageList") return; // side panel, handled on focus
+        var r = el.getBoundingClientRect();
+        if (r.top + r.height / 2 > vh / 2)
+          bottom = Math.max(bottom, vh - r.top + 8);
+        else top = Math.max(top, r.bottom + 8);
+      });
+      var root = document.documentElement.style;
+      root.scrollPaddingTop = Math.max(_hostScrollPad.top, top) + "px";
+      root.scrollPaddingBottom = Math.max(_hostScrollPad.bottom, bottom) + "px";
+    } catch (e) {}
+  }
+  document.addEventListener(
+    "focusin",
+    function (e) {
+      var el = e.target;
+      if (!el || !el.getBoundingClientRect || el === document.body) return;
+      var covered = widgetOverlays().some(function (o) {
+        if (o.contains(el)) return false;
+        var a = el.getBoundingClientRect();
+        var b = o.getBoundingClientRect();
+        return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+      });
+      if (covered) {
+        try {
+          el.scrollIntoView({ block: "center", inline: "nearest" });
+        } catch (err) {}
+      }
+    },
+    true,
+  );
+  var _padQueued = false;
+  function queueScrollPadding() {
+    if (_padQueued) return;
+    _padQueued = true;
+    requestAnimationFrame(function () {
+      _padQueued = false;
+      updateScrollPadding();
+    });
+  }
+  function watchOverlay(el) {
+    if (!el || el._dwaoPadWatched) return;
+    el._dwaoPadWatched = true;
+    try {
+      new MutationObserver(queueScrollPadding).observe(el, {
+        attributes: true,
+        attributeFilter: ["style"],
+      });
+    } catch (e) {}
+  }
+  watchOverlay(document.querySelector(".screen-reader-popup"));
+  watchOverlay(document.getElementById("pageList"));
+  window.addEventListener("resize", queueScrollPadding);
+  queueScrollPadding();
+
+  // Mirror each option card's visual state (.active class, step dots) into
+  // aria-pressed and its accessible name, whichever code path changed it.
+  function syncCardState(card) {
+    var on = card.classList.contains("active");
+    card.setAttribute("aria-pressed", String(on));
+    var name = card.getAttribute("data-label") || "";
+    var steps = card.querySelectorAll(".option-steps li");
+    if (steps.length && on) {
+      var level = -1;
+      steps.forEach(function (li, i) {
+        if (li.classList.contains("active")) level = i;
+      });
+      if (level !== -1)
+        name += ", level " + (level + 1) + " of " + steps.length;
+    }
+    card.setAttribute("aria-label", name);
+  }
+  try {
+    new MutationObserver(function (mutations) {
+      mutations.forEach(function (m) {
+        var card = m.target.closest && m.target.closest(".option-card");
+        if (card) syncCardState(card);
+      });
+    }).observe(panel, {
+      attributes: true,
+      attributeFilter: ["class"],
+      subtree: true,
+    });
+  } catch (e) {}
 
   // ── Click outside closes the panel ─────────────────────
   document.addEventListener("click", function (event) {
@@ -1049,10 +1336,20 @@
             scope.querySelectorAll("input, textarea, select"),
           ),
         );
+      var SKIP_TYPES = /^(hidden|submit|reset|button|image)$/i;
       nodes.forEach(function (el) {
-        if (!el.hasAttribute("aria-label") && el.name) {
-          el.setAttribute("aria-label", el.name);
-        }
+        // Only fill in a name when the field has none at all, so a visible
+        // <label> (or other author-supplied name) always wins (WCAG 2.5.3).
+        if (!el.name || SKIP_TYPES.test(el.type || "")) return;
+        if (
+          el.hasAttribute("aria-label") ||
+          el.hasAttribute("aria-labelledby") ||
+          el.hasAttribute("title") ||
+          el.hasAttribute("placeholder") ||
+          (el.labels && el.labels.length)
+        )
+          return;
+        el.setAttribute("aria-label", el.name);
       });
     } catch (e) {}
   }
@@ -1156,10 +1453,21 @@
 
   function ensurePageLanguage() {
     try {
-      if (!document.documentElement.getAttribute("lang")) {
-        var guess = (navigator.language || "en").split("-")[0];
-        document.documentElement.setAttribute("lang", guess);
+      if (document.documentElement.getAttribute("lang")) return;
+      // Prefer the language the site owner declares via data-page-lang; the
+      // visitor's browser language is only a last-resort guess.
+      if (/^[a-z]{2,3}(-[a-z0-9]{2,8})*$/i.test(CONFIG.pageLang)) {
+        document.documentElement.setAttribute("lang", CONFIG.pageLang);
+        return;
       }
+      var guess = (navigator.language || "en").split("-")[0];
+      document.documentElement.setAttribute("lang", guess);
+      if (window.console && console.warn)
+        console.warn(
+          "DWAO Accessibility: <html lang> is missing; guessed '" +
+            guess +
+            "' from the browser. Set lang on <html> or data-page-lang on the widget script.",
+        );
     } catch (e) {}
   }
 
@@ -1635,6 +1943,11 @@
   }
 
   // ── Read Page via screen reader popup ──────────────────
+  // Speech state is shared across opens: the popup's controls are bound once,
+  // on the first open, but hover reading is rebound on every open.
+  var utterance;
+  var lastSpokenText = "";
+  var currentCharIndex = 0;
   function toggleReadPage() {
     if (!window.speechSynthesis) return;
     var panelEl = document.querySelector(".accessibility-panel");
@@ -1643,28 +1956,20 @@
     var srUI = document.querySelector(".screen-reader-popup");
     if (!srUI) return;
     srUI.style.display = "block";
+    srUI.focus();
 
     var voiceSelect = srUI.querySelector(".voice-select");
     var volumeInput = srUI.querySelector(".volume-slider");
     var rateInput = srUI.querySelector(".rate-slider");
     var pitchInput = srUI.querySelector(".pitch-slider");
 
-    var utterance;
-    var lastSpokenText = "";
-    var currentCharIndex = 0;
-    var voices = synth.getVoices();
-    if (!voices.length) {
-      synth.onvoiceschanged = function () {
-        voices = synth.getVoices();
-      };
-    }
-
     function speakText(text, startIndex) {
       startIndex = startIndex || 0;
       stopReading();
       lastSpokenText = text;
       utterance = new SpeechSynthesisUtterance(text.substring(startIndex));
-      utterance.voice = voices[voiceSelect.value] || voices[0];
+      var voices = synth.getVoices();
+      utterance.voice = voices[voiceSelect.value] || voices[0] || null;
       utterance.volume = parseFloat(volumeInput.value);
       utterance.rate = parseFloat(rateInput.value);
       utterance.pitch = parseFloat(pitchInput.value);
@@ -1696,6 +2001,8 @@
     }
 
     [volumeInput, rateInput, pitchInput].forEach(function (input) {
+      if (input._bound) return;
+      input._bound = true;
       input.addEventListener("input", applyUpdatedSettings);
     });
 
@@ -1714,6 +2021,8 @@
 
     document.removeEventListener("mouseover", _dwaoMouseOver);
     document.removeEventListener("mouseout", _dwaoMouseOut);
+    document.removeEventListener("focusin", _dwaoMouseOver);
+    document.removeEventListener("focusout", _dwaoMouseOut);
 
     _dwaoMouseOver = function (e) {
       var el = e.target;
@@ -1729,6 +2038,9 @@
     };
     document.addEventListener("mouseover", _dwaoMouseOver);
     document.addEventListener("mouseout", _dwaoMouseOut);
+    // Keyboard users hear content as they Tab to it
+    document.addEventListener("focusin", _dwaoMouseOver);
+    document.addEventListener("focusout", _dwaoMouseOut);
 
     var closePopup = srUI.querySelector(".close-popup");
     if (closePopup && !closePopup._bound) {
@@ -1738,6 +2050,9 @@
         synth.cancel();
         document.removeEventListener("mouseover", _dwaoMouseOver);
         document.removeEventListener("mouseout", _dwaoMouseOut);
+        document.removeEventListener("focusin", _dwaoMouseOver);
+        document.removeEventListener("focusout", _dwaoMouseOut);
+        if (toggleBtn) toggleBtn.focus();
         document
           .querySelectorAll(
             ".option-card[datakey='blindness'], .option-card[datakey='readPage']",
@@ -1919,21 +2234,30 @@
   function getPageStructure() {
     var pl = document.getElementById("pageList");
     if (!pageStructureBuilt) {
+      pl.setAttribute("role", "dialog");
+      pl.setAttribute("aria-labelledby", "dwao-ps-title");
       var header = createEl("p", {
         class: "page-structure-header",
+        id: "dwao-ps-title",
         text: "Page Structure",
       });
 
-      var closeBtn = svgIcon("close");
-      closeBtn.style.cursor = "pointer";
-      closeBtn.style.position = "absolute";
-      closeBtn.style.top = "14px";
-      closeBtn.style.right = "14px";
-      closeBtn.style.color = "#fff";
+      var closeIconPs = svgIcon("close");
+      closeIconPs.style.color = "#fff";
+      var closeBtn = createEl(
+        "button",
+        {
+          type: "button",
+          class: "dwao-ps-close",
+          "aria-label": "Close page structure",
+        },
+        [closeIconPs],
+      );
       closeBtn.onclick = function () {
         pl.style.display = "none";
         var card = document.querySelector(".option-card.page-structure");
         if (card) card.classList.remove("active");
+        if (toggleBtn) toggleBtn.focus();
       };
 
       var wrapper = createEl("div");
@@ -1968,16 +2292,22 @@
         var list = createEl("ul", { class: "as-card-content" });
         headings.forEach(function (heading, idx) {
           if (!heading.id) heading.id = "heading-" + idx;
-          var li = createEl("li", {
-            class: heading.tagName.toLowerCase(),
-            text: heading.innerText.trim(),
-          });
+          var li = createEl("li", { class: heading.tagName.toLowerCase() }, [
+            createEl("button", {
+              type: "button",
+              class: "dwao-ps-item",
+              text: heading.innerText.trim(),
+            }),
+          ]);
           li.onclick = function () {
             var yOffset = -130;
             var el = document.getElementById(heading.id);
             var y =
               el.getBoundingClientRect().top + window.pageYOffset + yOffset;
             window.scrollTo({ top: y, behavior: "smooth" });
+            // Move keyboard focus to the heading, not just the viewport
+            if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
+            el.focus({ preventScroll: true });
           };
           list.appendChild(li);
         });
@@ -1990,6 +2320,10 @@
     var opening = pl.style.display === "none";
     pl.style.display = opening ? "block" : "none";
     if (panel) panel.style.display = "none";
+    if (opening) {
+      var psClose = pl.querySelector(".dwao-ps-close");
+      if (psClose) psClose.focus();
+    }
   }
 
   // ── Draggable Virtual Keyboard ─────────────────────────
@@ -2009,6 +2343,8 @@
     kbWrap.id = "keyboardWrapper";
 
     var closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.setAttribute("aria-label", "Close virtual keyboard");
     closeBtn.textContent = "✖";
     closeBtn.style.cssText =
       "position:absolute;top:2px;right:10px;font-size:18px;cursor:pointer;border:none;background:transparent;color:#888;";
@@ -2018,6 +2354,29 @@
       if (c) c.classList.remove("active");
     };
     kbWrap.appendChild(closeBtn);
+
+    // Single-pointer alternative to dragging the keyboard (WCAG 2.5.7)
+    var moveBar = document.createElement("div");
+    moveBar.style.cssText = "display:flex;gap:8px;margin:0 32px 8px 0;";
+    [
+      { label: "Move to top", top: true },
+      { label: "Move to bottom", top: false },
+    ].forEach(function (m) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "dwao-vk-move";
+      b.style.cssText =
+        "padding:6px 12px;font-size:13px;cursor:pointer;border:1px solid #aaa;border-radius:4px;background:#fff;";
+      b.textContent = m.label;
+      b.onclick = function () {
+        kbWrap.style.left = "50%";
+        kbWrap.style.transform = "translateX(-50%)";
+        kbWrap.style.top = m.top ? "20px" : "auto";
+        kbWrap.style.bottom = m.top ? "auto" : "20px";
+      };
+      moveBar.appendChild(b);
+    });
+    kbWrap.appendChild(moveBar);
 
     var kbContainer = document.createElement("div");
     kbContainer.id = "virtualKeyboard";
@@ -2039,7 +2398,9 @@
         "display:flex;justify-content:center;margin-bottom:5px;";
       rowKeys.forEach(function (key) {
         var btn = document.createElement("button");
+        btn.type = "button";
         btn.textContent = key === "Space" ? "␣" : key;
+        if (key === "Space") btn.setAttribute("aria-label", "Space");
         btn.className = "virtual-key";
         btn.style.minWidth =
           key === "Space" ? "300px" : key.length > 1 ? "70px" : "40px";
@@ -2050,6 +2411,7 @@
     });
 
     document.body.appendChild(kbWrap);
+    watchOverlay(kbWrap);
     makeDraggable(kbWrap);
     bindVirtualKeys();
   }
@@ -2246,9 +2608,11 @@
 
     if (_dwaoMouseOver) {
       document.removeEventListener("mouseover", _dwaoMouseOver);
+      document.removeEventListener("focusin", _dwaoMouseOver);
     }
     if (_dwaoMouseOut) {
       document.removeEventListener("mouseout", _dwaoMouseOut);
+      document.removeEventListener("focusout", _dwaoMouseOut);
     }
     document.querySelectorAll(".speak-highlight").forEach(function (el) {
       el.classList.remove("speak-highlight");
@@ -2259,8 +2623,8 @@
   function initAccessibilityHandlers() {
     var triggers = document.querySelectorAll(".accordion-trigger");
     var cards = document.querySelectorAll(".option-card:not(.empty)");
-    var resetBtn = document.querySelector(".reset-all");
-    var closeBtn = document.querySelector(".close-btn");
+    var resetBtn = document.querySelector(".reset-all-acc");
+    var closeBtn = document.querySelector(".close-btn-acc");
 
     triggers.forEach(function (trigger) {
       trigger.addEventListener("click", function () {
@@ -2269,6 +2633,12 @@
         triggers.forEach(function (other) {
           if (other !== trigger)
             other.closest(".accordion-item-acces").classList.remove("active");
+          other.setAttribute(
+            "aria-expanded",
+            String(
+              other.closest(".accordion-item-acces").classList.contains("active"),
+            ),
+          );
         });
       });
     });
@@ -2340,17 +2710,33 @@
     if (closeBtn) {
       closeBtn.addEventListener("click", function () {
         panel.style.display = "none";
+        if (toggleBtn) toggleBtn.focus();
       });
     }
 
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") panel.style.display = "none";
+      if (e.key === "Escape") {
+        var sr = document.querySelector(".screen-reader-popup");
+        if (sr && sr.style.display === "block" && sr.contains(document.activeElement)) {
+          var srClose = sr.querySelector(".close-popup");
+          if (srClose) srClose.click();
+          return;
+        }
+        if (panel.style.display === "block") {
+          panel.style.display = "none";
+          if (toggleBtn) toggleBtn.focus();
+        }
+        return;
+      }
       if (
         (e.key === "ArrowDown" || e.key === "ArrowUp") &&
         document.activeElement.classList.contains("option-card")
       ) {
         e.preventDefault();
-        var arr = Array.from(cards);
+        var section = document.activeElement.closest(".accordion-item-acces");
+        var arr = Array.from(
+          (section || panel).querySelectorAll(".option-card:not(.empty)"),
+        );
         var idx = arr.indexOf(document.activeElement);
         var next =
           e.key === "ArrowDown"
@@ -2358,17 +2744,14 @@
             : (idx - 1 + arr.length) % arr.length;
         arr[next].focus();
       }
-      if (
-        (e.key === "Enter" || e.key === " ") &&
-        document.activeElement.classList.contains("option-card")
-      ) {
-        e.preventDefault();
-        document.activeElement.click();
-      }
     });
 
     var first = document.querySelector(".accordion-item-acces");
-    if (first) first.classList.add("active");
+    if (first) {
+      first.classList.add("active");
+      var firstTrigger = first.querySelector(".accordion-trigger");
+      if (firstTrigger) firstTrigger.setAttribute("aria-expanded", "true");
+    }
 
     // Restore persisted selections
     try {

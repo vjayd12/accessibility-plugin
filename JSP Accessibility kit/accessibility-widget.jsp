@@ -9,4 +9,4 @@
   <button id="accessibilityToggleBtn"></button>
 </div>
 <script src="${pageContext.request.contextPath}/assets/vendor/dwao-accessibility/init.js"
-        data-position="bottom-left" data-theme="pnb"></script>
+        data-position="bottom-left" data-theme="default"></script>

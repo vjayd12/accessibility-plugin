@@ -62,7 +62,7 @@ The complete `accessibility-widget.jsp`:
   <button id="accessibilityToggleBtn"></button>
 </div>
 <script src="${pageContext.request.contextPath}/assets/vendor/dwao-accessibility/init.js"
-        data-position="bottom-left" data-theme="pnb"></script>
+        data-position="bottom-left" data-theme="default"></script>
 ```
 
 > **Keep `init.js` out of `WEB-INF/`.** The server never sends files from `WEB-INF/` to the browser, so the script would return 404. If you copy it to a different folder, update the `src` path to match.
@@ -122,9 +122,10 @@ Set these `data-*` attributes on the widget's script tag in `accessibility-widge
 
 | Attribute          | Values                                                                              | Default       | Description                                                                |
 | ------------------ | ----------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
-| `data-position`    | `bottom-left`, `bottom-right`, `top-left`, `top-right`                              | `bottom-left` | Where the button and panel appear                                          |
-| `data-theme`       | `pnb` (#007abc), `purple` (#663db3), `blue` (#0073BB), `green` (#00875A)            | `pnb`         | Accent colour                                                              |
+| `data-position`    | `bottom-left`, `bottom-right`, `top-left`, `top-right`                              | `bottom-right`| Where the button and panel appear                                          |
+| `data-theme`       | `default` (#007abc), `purple` (#663db3), `blue` (#0073BB), `green` (#00875A)        | `default`     | Accent colour                                                              |
 | `data-brand-color` | Hex colour, e.g. `#e63946`                                                          | —             | Overrides `data-theme`. Non-hex values are ignored.                        |
+| `data-page-lang`   | BCP 47 code, e.g. `en`, `en-IN`, `hi`                                               | —             | Language of your page content. Used only if `<html>` has no `lang`.        |
 | `data-lang`        | `en`                                                                                | `en`          | Reserved. The panel is English-only in v2.0.0 and this has no effect.      |
 
 ---
