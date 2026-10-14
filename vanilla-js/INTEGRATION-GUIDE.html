@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DWAO Accessibility Widget — Integration Guide</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 11pt; color: #111; max-width: 780px; margin: 48px auto; padding: 0 16px; line-height: 1.6; background: #fff; }
+    h1 { font-size: 22pt; color: #1a1a1a; border-bottom: 2px solid #663db3; padding-bottom: 8px; margin-bottom: 4px; }
+    .subtitle { color: #555; margin: 0 0 24px; }
+    h2 { font-size: 15pt; color: #663db3; margin: 36px 0 8px; }
+    h3 { font-size: 12pt; color: #1a1a1a; margin: 24px 0 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 10pt; }
+    th { background: #663db3; color: #fff; padding: 8px 12px; text-align: left; }
+    td { border: 1px solid #ddd; padding: 8px 12px; vertical-align: top; }
+    tbody tr:nth-child(even) td { background: #f5f0ff; }
+    pre { background: #f4f4f4; border-left: 4px solid #663db3; padding: 14px 16px; font-family: "Courier New", monospace; font-size: 9.5pt; overflow-x: auto; margin: 12px 0; }
+    code { background: #f0ecff; font-family: "Courier New", monospace; font-size: 9.5pt; padding: 1px 4px; border-radius: 3px; }
+    pre code { background: none; padding: 0; }
+    ol.steps { padding-left: 0; list-style: none; counter-reset: step; }
+    ol.steps > li { counter-increment: step; margin: 24px 0; }
+    ol.steps > li > h3::before { content: counter(step); display: inline-block; background: #663db3; color: #fff; border-radius: 50%; width: 26px; height: 26px; text-align: center; line-height: 26px; margin-right: 8px; font-size: 11pt; }
+    .note { background: #fff8e1; border-left: 4px solid #f9a825; padding: 10px 16px; margin: 12px 0; font-size: 10pt; }
+    .ok { background: #edfdf1; border-left: 4px solid #2e7d32; padding: 10px 16px; margin: 12px 0; font-size: 10pt; }
+    footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #ddd; color: #666; font-size: 9.5pt; text-align: center; }
+  </style>
+</head>
+<body>
+<main>
+
+  <h1>DWAO Accessibility Widget</h1>
+  <p class="subtitle">Integration Guide — v2.0.0 (plain HTML / CMS)</p>
+
+  <h2>What's in the Package</h2>
+  <table>
+    <thead><tr><th scope="col">File</th><th scope="col">Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>dwao-a11y-widget.js</code></td><td>The widget script — add this to your site</td></tr>
+      <tr><td><code>INTEGRATION-GUIDE.html</code></td><td>This document</td></tr>
+      <tr><td><code>test-page.html</code></td><td>A sample page for checking every feature and automatic fix in a browser</td></tr>
+    </tbody>
+  </table>
+  <p class="ok"><strong>Zero dependencies.</strong> A single JavaScript file with all icons embedded inline. It loads no external images, fonts, stylesheets or libraries and makes no network requests.</p>
+
+  <h2>Quick Start</h2>
+  <ol class="steps">
+    <li>
+      <h3>Copy the script into your project</h3>
+      <p>Place <code>dwao-a11y-widget.js</code> in your site's scripts folder, for example:</p>
+<pre><code>your-website/
+  js/
+    dwao-a11y-widget.js
+  index.html</code></pre>
+    </li>
+    <li>
+      <h3>Add the button container</h3>
+      <p>Add this markup inside <code>&lt;body&gt;</code>. Leave the button empty — the widget fills in the icon and the "Accessibility" label.</p>
+<pre><code>&lt;div class="accessibility-div"&gt;
+  &lt;button id="accessibilityToggleBtn"&gt;&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+    </li>
+    <li>
+      <h3>Add the script tag</h3>
+      <p>Place it <strong>after</strong> the button container, just before <code>&lt;/body&gt;</code>:</p>
+<pre><code>&lt;script src="js/dwao-a11y-widget.js" data-position="bottom-left"&gt;&lt;/script&gt;</code></pre>
+      <p class="ok"><strong>That's it.</strong> The widget initialises as soon as the script runs. Click the button to open the panel.</p>
+    </li>
+  </ol>
+
+  <h2>Configuration Options</h2>
+  <p>Configure the widget with <code>data-*</code> attributes on its script tag. All are optional.</p>
+<pre><code>&lt;script
+  src="js/dwao-a11y-widget.js"
+  data-position="bottom-right"
+  data-theme="blue"
+&gt;&lt;/script&gt;</code></pre>
+  <table>
+    <thead><tr><th scope="col">Attribute</th><th scope="col">Values</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>data-position</code></td><td><code>bottom-left</code>, <code>bottom-right</code>, <code>top-left</code>, <code>top-right</code></td><td><code>bottom-left</code></td><td>Where the button and panel appear</td></tr>
+      <tr><td><code>data-theme</code></td><td><code>default</code> (#007abc), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td><td><code>default</code></td><td>Accent colour of the button and panel</td></tr>
+      <tr><td><code>data-brand-color</code></td><td>Hex colour: <code>#rgb</code>, <code>#rrggbb</code> or <code>#rrggbbaa</code></td><td>—</td><td>Overrides <code>data-theme</code>. Any value that is not a hex colour is ignored and the theme colour is used.</td></tr>
+      <tr><td><code>data-page-lang</code></td><td>BCP 47 code, e.g. <code>en</code>, <code>en-IN</code>, <code>hi</code></td><td>—</td><td>Language of your page content. Used only if <code>&lt;html&gt;</code> has no <code>lang</code> attribute.</td></tr>
+      <tr><td><code>data-lang</code></td><td><code>en</code></td><td><code>en</code></td><td>Reserved. The panel is English-only in v2.0.0 and this attribute currently has no effect.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Features Included</h2>
+  <table>
+    <thead><tr><th scope="col">Category</th><th scope="col">Features</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Profiles</strong></td><td>Blindness, Visually Impaired, Cognitive, Epilepsy, Dyslexia, ADHD</td></tr>
+      <tr><td><strong>Content</strong></td><td>Text Size (3 levels), Hide/Show Images, Line Spacing, Letter Spacing, Text Zoom (magnifier), Image Description, Enable Skip Link, Pause Media, Text Alignment</td></tr>
+      <tr><td><strong>Colour &amp; Contrast</strong></td><td>High Contrast, Invert Colours, Greyscale, Low Saturation</td></tr>
+      <tr><td><strong>Navigation</strong></td><td>Reading Line, Highlight Links, Big Cursor, Enlarge Buttons, Read Page (text-to-speech with voice, volume, rate and pitch controls), Page Structure, Virtual Keyboard</td></tr>
+    </tbody>
+  </table>
+  <p>The visitor's choices are saved in their browser and restored on the next visit. <kbd>Esc</kbd> closes the panel, and "Reset All" clears every setting.</p>
+
+  <h2>What the Widget Changes on Your Page</h2>
+  <p>As soon as it loads, v2.0.0 repairs some common accessibility problems on the host page. It checks content added later (modals, AJAX, route changes) as well.</p>
+  <table>
+    <thead><tr><th scope="col">Automatic fix</th><th scope="col">What it does</th></tr></thead>
+    <tbody>
+      <tr><td>Field labels</td><td>Copies the <code>name</code> attribute into <code>aria-label</code> only on inputs, selects and textareas that have no accessible name at all (no <code>&lt;label&gt;</code>, <code>aria-label</code>, <code>aria-labelledby</code>, <code>title</code> or <code>placeholder</code>). Fields you have labelled are never changed. This is a last resort; give every field a visible <code>&lt;label&gt;</code>.</td></tr>
+      <tr><td>Iframe titles</td><td>Gives untitled iframes a title such as "Embedded content from example.com"</td></tr>
+      <tr><td>Password paste</td><td>Removes <code>onpaste="return false"</code> from password fields so password managers work. The value is never read.</td></tr>
+      <tr><td>Skip link</td><td>Inserts a "Skip to main content" link pointing at <code>&lt;main&gt;</code> (or the first <code>&lt;h1&gt;</code>) unless the page already has one</td></tr>
+      <tr><td>Page language</td><td>If <code>&lt;html lang&gt;</code> is missing, sets it from <code>data-page-lang</code>, or as a last resort guesses from the visitor's browser language and logs a console warning. Set <code>lang</code> on <code>&lt;html&gt;</code> yourself.</td></tr>
+      <tr><td>Zoom</td><td>Removes <code>user-scalable=no</code> and raises <code>maximum-scale</code> to at least 2 in the viewport meta tag</td></tr>
+    </tbody>
+  </table>
+  <p class="note"><strong>Tip:</strong> these fixes are a safety net, not a substitute for fixing the source markup. Wrapping your main content in <code>&lt;main&gt;</code> gives the skip link the best target.</p>
+
+  <h2>CMS-Specific Instructions</h2>
+
+  <h3>WordPress</h3>
+  <p>Upload <code>dwao-a11y-widget.js</code> to your theme's <code>js/</code> folder and add this to <code>footer.php</code>, before <code>&lt;/body&gt;</code> (or use a plugin such as "Insert Headers and Footers"):</p>
+<pre><code>&lt;div class="accessibility-div"&gt;
+  &lt;button id="accessibilityToggleBtn"&gt;&lt;/button&gt;
+&lt;/div&gt;
+&lt;script src="&lt;?php echo get_template_directory_uri(); ?&gt;/js/dwao-a11y-widget.js"
+        data-position="bottom-left"&gt;&lt;/script&gt;</code></pre>
+
+  <h3>Shopify</h3>
+  <p>Upload the file to your theme's <code>Assets</code>, then add this to <code>theme.liquid</code> before <code>&lt;/body&gt;</code>:</p>
+<pre><code>&lt;div class="accessibility-div"&gt;
+  &lt;button id="accessibilityToggleBtn"&gt;&lt;/button&gt;
+&lt;/div&gt;
+&lt;script src="{{ 'dwao-a11y-widget.js' | asset_url }}" data-position="bottom-left"&gt;&lt;/script&gt;</code></pre>
+
+  <h3>Adobe Experience Manager (AEM)</h3>
+  <p>Add the script to a clientlib loaded at the end of the page body, and place the button container in your page template or footer component. Keep <code>data-*</code> attributes on the script tag that loads the file.</p>
+
+  <h3>React, Angular and other single-page apps</h3>
+  <p>Use the dedicated <strong>React</strong> or <strong>Angular</strong> kit instead of this file. Their build of the widget adds <code>DWAOAccessibility.reinit()</code> for client-side route changes. This build has no <code>reinit()</code>, and loading it a second time (for example from a component that mounts twice) creates a second panel.</p>
+
+  <h2>Styling the Button</h2>
+  <p>The widget positions the button itself (see <code>data-position</code>) and colours it with the theme or brand colour. To change the colour, use <code>data-theme</code> or <code>data-brand-color</code> rather than CSS. For other tweaks, target <code>#accessibilityToggleBtn</code> and <code>.accessibility-panel</code>. Positioning rules use <code>!important</code>, so avoid overriding <code>position</code>.</p>
+
+  <h2>Content Security Policy (CSP)</h2>
+  <p>The widget injects its own <code>&lt;style&gt;</code> elements and inline styles, so a strict CSP must allow inline styles. It needs nothing else beyond loading the script itself:</p>
+<pre><code>script-src 'self';
+style-src  'self' 'unsafe-inline';</code></pre>
+  <p>No <code>font-src</code>, <code>img-src</code> or <code>connect-src</code> entries are needed.</p>
+
+  <h2>Data &amp; Privacy</h2>
+  <p>The only data stored is the visitor's own list of selected options, kept in <code>localStorage</code> under the key <code>accessibility_local_settings</code>. The widget sets no cookies, sends no network requests, and never reads, stores or displays the contents of password fields.</p>
+
+  <h2>JavaScript API</h2>
+  <p>The widget exposes <code>window.DWAOAccessibility</code>:</p>
+<pre><code>window.DWAOAccessibility.version;   // "2.0.0"
+window.DWAOAccessibility.reset();   // turn off every accessibility setting</code></pre>
+
+  <h2>Browser Support</h2>
+  <table>
+    <thead><tr><th scope="col">Browser</th><th scope="col">Minimum version</th></tr></thead>
+    <tbody>
+      <tr><td>Google Chrome</td><td>60+</td></tr>
+      <tr><td>Mozilla Firefox</td><td>55+</td></tr>
+      <tr><td>Safari</td><td>12+</td></tr>
+      <tr><td>Microsoft Edge</td><td>79+ (Chromium)</td></tr>
+      <tr><td>Mobile Chrome / Safari</td><td>Android 8+ / iOS 12+</td></tr>
+    </tbody>
+  </table>
+  <p>Read Page depends on the browser's speech synthesis voices. Only English voices (en-US, en-IN, en-GB) are offered.</p>
+
+  <h2>Troubleshooting</h2>
+  <ol>
+    <li><strong>No button appears:</strong> the page must contain <code>&lt;div class="accessibility-div"&gt;</code> with <code>&lt;button id="accessibilityToggleBtn"&gt;</code> inside it, and that id must be unique.</li>
+    <li><strong>Script not loading:</strong> check that the <code>src</code> path points to <code>dwao-a11y-widget.js</code> (look for a 404 in the browser's Network tab).</li>
+    <li><strong>Button does nothing:</strong> the script must come <em>after</em> the button container, so the button exists when the widget starts.</li>
+    <li><strong>Options ignored:</strong> <code>data-*</code> attributes must be on the widget's own script tag. An invalid <code>data-brand-color</code> falls back to the theme colour.</li>
+    <li><strong>Panel unstyled:</strong> your CSP is blocking inline styles; see the CSP section above.</li>
+    <li><strong>Site CSS clashes with the panel:</strong> the panel's root element is <code>.accessibility-panel</code>; raise the specificity of your own rules if they leak into it.</li>
+  </ol>
+
+  <h2>Support</h2>
+  <p>For technical support or questions, contact your DWAO representative.</p>
+
+</main>
+<footer>© 2026 DWAO. All rights reserved. — DWAO Accessibility Widget v2.0.0</footer>
+</body>
+</html>

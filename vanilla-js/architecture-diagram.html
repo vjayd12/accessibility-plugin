@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>DWAO Accessibility Widget — Architecture</title>
+<style>
+  body { margin:0; padding:28px; background:#dde2e8; font-family:Arial,sans-serif; }
+  .sheet { background:#fff; max-width:1380px; margin:0 auto; padding:30px 32px 40px; box-shadow:0 4px 24px rgba(0,0,0,.18); }
+  .sec-title { font-size:15px; font-weight:bold; color:#1a5fa8; border-bottom:2.5px solid #1a5fa8; padding-bottom:6px; margin:40px 0 14px; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th { background:#1a5fa8; color:#fff; padding:10px 14px; text-align:left; font-size:12px; letter-spacing:.3px; }
+  td { padding:10px 14px; border-bottom:1px solid #e5e5e5; vertical-align:top; color:#333; }
+  tr:last-child td { border:none; }
+  tr:hover td { background:#f4f8ff; }
+  .b { display:inline-block; border-radius:11px; padding:2px 10px; font-size:11px; font-weight:700; }
+  .high   { background:#ffe8e8; color:#b00; }
+  .medium { background:#fff3e0; color:#b05500; }
+  .low    { background:#fffde7; color:#806000; }
+  .info   { background:#e3f2fd; color:#1565c0; }
+  code { background:#f0f0f0; padding:1px 5px; border-radius:3px; font-size:11.5px; color:#c0437a; font-family:Consolas,monospace; }
+  .fix { background:#e6f7f0; color:#1a5c38; padding:2px 8px; border-radius:4px; font-size:11.5px; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<!-- ═══════════════════════ ARCHITECTURE SVG ═══════════════════════ -->
+<svg viewBox="0 0 1300 700" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%">
+<defs>
+  <marker id="arr" viewBox="0 0 14 10" refX="13" refY="5"
+          markerWidth="9" markerHeight="7" orient="auto">
+    <polygon points="0 0,14 5,0 10" fill="#111"/>
+  </marker>
+  <!-- sharp 3-D offset shadow — no blur, matches ICICI style -->
+  <filter id="sh" x="-8%" y="-8%" width="122%" height="122%">
+    <feDropShadow dx="6" dy="6" stdDeviation="0" flood-color="#999"/>
+  </filter>
+  <filter id="shc" x="-8%" y="-8%" width="122%" height="122%">
+    <feDropShadow dx="6" dy="6" stdDeviation="0" flood-color="#bbb"/>
+  </filter>
+</defs>
+
+<!-- ── Title ── -->
+<text x="650" y="36" text-anchor="middle" font-size="20" font-weight="bold"
+      fill="#1a5fa8" font-family="Arial">
+  DWAO Accessibility Widget v2.0.0 — System Architecture Diagram
+</text>
+
+<!-- ── Legend ── -->
+<rect x="12" y="54" width="178" height="172" fill="#fff" stroke="#444" stroke-width="1.5"/>
+<text x="101" y="76" text-anchor="middle" font-size="13" font-weight="bold" fill="#222" font-family="Arial">Legend</text>
+<rect x="22" y="88"  width="30" height="20" fill="#cde4f5" stroke="#3a84c9" stroke-width="1.5"/>
+<text x="60" y="103" font-size="12" fill="#333" font-family="Arial">Widget Internal</text>
+<rect x="22" y="122" width="30" height="20" fill="#fde8cc" stroke="#d4860a" stroke-width="1.5"/>
+<text x="60" y="137" font-size="12" fill="#333" font-family="Arial">Browser APIs (External)</text>
+<rect x="22" y="156" width="30" height="20" fill="#d4edda" stroke="#5a9e6f" stroke-width="1.5"/>
+<text x="60" y="171" font-size="12" fill="#333" font-family="Arial">Host Page Elements</text>
+<circle cx="37" cy="204" r="13" fill="#fff" stroke="#555" stroke-width="1.5"/>
+<text x="60" y="209" font-size="12" fill="#333" font-family="Arial">Actor</text>
+
+<!-- ════════════════════════════════════════════
+     ACTORS — left
+     ════════════════════════════════════════════ -->
+<!-- Host Website -->
+<circle cx="88" cy="220" r="46" fill="#fff" stroke="#555" stroke-width="2.5" filter="url(#shc)"/>
+<text x="88" y="214" text-anchor="middle" font-size="12" font-weight="bold" fill="#333" font-family="Arial">Host</text>
+<text x="88" y="230" text-anchor="middle" font-size="12" font-weight="bold" fill="#333" font-family="Arial">Website</text>
+
+<!-- User -->
+<circle cx="88" cy="385" r="46" fill="#fff" stroke="#555" stroke-width="2.5" filter="url(#shc)"/>
+<text x="88" y="390" text-anchor="middle" font-size="13" font-weight="bold" fill="#333" font-family="Arial">User</text>
+
+<!-- ════════════════════════════════════════════
+     WIDGET CORE CONTAINER
+     rect: x=205 y=80 w=725 h=445  → right=930 bottom=525
+     ════════════════════════════════════════════ -->
+<rect x="205" y="80" width="725" height="445"
+      fill="#fff" stroke="#1a5fa8" stroke-width="2.5" filter="url(#shc)"/>
+<text x="567" y="106" text-anchor="middle" font-size="17" font-weight="bold"
+      fill="#1a5fa8" font-family="Arial">Widget Core</text>
+
+<!-- Box 1 — Core CSS  x=228 y=120 w=168 h=72 -->
+<rect x="228" y="120" width="168" height="72" fill="#cde4f5" stroke="#3a84c9" stroke-width="1.5" filter="url(#sh)"/>
+<text x="312" y="145" text-anchor="middle" font-size="13" font-weight="bold" fill="#0e2d5a" font-family="Arial">Vanilla JS &amp; CSS</text>
+<text x="312" y="162" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Reads data-* attrs · Injects CSS</text>
+<text x="312" y="176" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Resolves theme &amp; brand color</text>
+
+<!-- Box 2 — Accessibility Panel  x=228 y=248 w=168 h=96 -->
+<rect x="228" y="248" width="168" height="96" fill="#cde4f5" stroke="#3a84c9" stroke-width="1.5" filter="url(#sh)"/>
+<text x="312" y="271" text-anchor="middle" font-size="13" font-weight="bold" fill="#0e2d5a" font-family="Arial">Accessibility Panel</text>
+<text x="312" y="287" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">24 feature cards · 4 sections</text>
+<text x="312" y="301" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Profile · Content · Color</text>
+<text x="312" y="315" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Navigation · Accordion UI</text>
+<text x="312" y="331" text-anchor="middle" font-size="9.5" fill="#4a72a0" font-family="Arial">optionActions{} dispatch map</text>
+
+<!-- Box 3 — Screen Reader Popup  x=228 y=402 w=168 h=70 -->
+<rect x="228" y="402" width="168" height="70" fill="#cde4f5" stroke="#3a84c9" stroke-width="1.5" filter="url(#sh)"/>
+<text x="312" y="425" text-anchor="middle" font-size="13" font-weight="bold" fill="#0e2d5a" font-family="Arial">Screen Reader Popup</text>
+<text x="312" y="441" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Voice · Rate · Pitch · Volume</text>
+<text x="312" y="456" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Hover-to-speak · Start / Pause / Stop</text>
+
+<!-- Box 4 — Feature Engine  x=463 y=183 w=183 h=148 -->
+<rect x="463" y="183" width="183" height="148" fill="#cde4f5" stroke="#3a84c9" stroke-width="1.5" filter="url(#sh)"/>
+<text x="554" y="207" text-anchor="middle" font-size="13" font-weight="bold" fill="#0e2d5a" font-family="Arial">Feature Engine</text>
+<text x="554" y="223" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Typography (font/spacing/align)</text>
+<text x="554" y="237" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Visual (contrast/invert/gray)</text>
+<text x="554" y="251" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Navigation (cursor/links/skip)</text>
+<text x="554" y="265" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Media pause · Magnifier lens</text>
+<text x="554" y="279" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Virtual keyboard · Page structure</text>
+<text x="554" y="293" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">ADHD reading line · Alt tooltip</text>
+<text x="554" y="307" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Dyslexia font · Epilepsy mode</text>
+<text x="554" y="322" text-anchor="middle" font-size="9.5" fill="#4a72a0" font-family="Arial">resetAllAccessibility()</text>
+
+<!-- Box 5 — State Manager  x=463 y=392 w=183 h=80 -->
+<rect x="463" y="392" width="183" height="80" fill="#cde4f5" stroke="#3a84c9" stroke-width="1.5" filter="url(#sh)"/>
+<text x="554" y="415" text-anchor="middle" font-size="13" font-weight="bold" fill="#0e2d5a" font-family="Arial">State Manager</text>
+<text x="554" y="431" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">Closure flags: imagesHidden</text>
+<text x="554" y="445" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">readingLineOn · mediaPaused</text>
+<text x="554" y="459" text-anchor="middle" font-size="10" fill="#1a3a6a" font-family="Arial">fontSizeLevel · CSS class arrays</text>
+
+<!-- ════════════════════════════════════════════
+     BROWSER APIs — right  x=990
+     ════════════════════════════════════════════ -->
+<!-- Web Speech API -->
+<rect x="990" y="163" width="178" height="72" fill="#fde8cc" stroke="#d4860a" stroke-width="1.5" filter="url(#sh)"/>
+<text x="1079" y="189" text-anchor="middle" font-size="13" font-weight="bold" fill="#7a3e00" font-family="Arial">Web Speech API</text>
+<text x="1079" y="206" text-anchor="middle" font-size="10.5" fill="#7a3e00" font-family="Arial">speechSynthesis (browser built-in)</text>
+<text x="1079" y="222" text-anchor="middle" font-size="10.5" fill="#7a3e00" font-family="Arial">Hover-to-speak · Read Page TTS</text>
+
+<!-- localStorage -->
+<rect x="990" y="278" width="178" height="72" fill="#fde8cc" stroke="#d4860a" stroke-width="1.5" filter="url(#sh)"/>
+<text x="1079" y="304" text-anchor="middle" font-size="13" font-weight="bold" fill="#7a3e00" font-family="Arial">localStorage API</text>
+<text x="1079" y="321" text-anchor="middle" font-size="10.5" fill="#7a3e00" font-family="Arial">"accessibility_local_settings"</text>
+<text x="1079" y="337" text-anchor="middle" font-size="10.5" fill="#7a3e00" font-family="Arial">Persists active card keys (JSON)</text>
+
+<!-- CSS / DOM APIs -->
+<rect x="990" y="393" width="178" height="72" fill="#fde8cc" stroke="#d4860a" stroke-width="1.5" filter="url(#sh)"/>
+<text x="1079" y="419" text-anchor="middle" font-size="13" font-weight="bold" fill="#7a3e00" font-family="Arial">CSS / DOM APIs</text>
+<text x="1079" y="436" text-anchor="middle" font-size="10.5" fill="#7a3e00" font-family="Arial">classList · style.filter</text>
+<text x="1079" y="452" text-anchor="middle" font-size="10.5" fill="#7a3e00" font-family="Arial">CSS custom properties (--vars)</text>
+
+<!-- ════════════════════════════════════════════
+     HOST PAGE ELEMENTS — bottom  y=572
+     ════════════════════════════════════════════ -->
+<rect x="205" y="572" width="158" height="68" fill="#d4edda" stroke="#5a9e6f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="284" y="596" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a4d2a" font-family="Arial">&lt;html&gt; Element</text>
+<text x="284" y="612" text-anchor="middle" font-size="10.5" fill="#1a4d2a" font-family="Arial">CSS filter changes</text>
+<text x="284" y="627" text-anchor="middle" font-size="10"   fill="#1a4d2a" font-family="Arial">contrast · invert · grayscale</text>
+
+<rect x="383" y="572" width="158" height="68" fill="#d4edda" stroke="#5a9e6f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="462" y="596" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a4d2a" font-family="Arial">&lt;body&gt; Classes</text>
+<text x="462" y="612" text-anchor="middle" font-size="10.5" fill="#1a4d2a" font-family="Arial">dyslexia-font · big-cursor</text>
+<text x="462" y="627" text-anchor="middle" font-size="10"   fill="#1a4d2a" font-family="Arial">highlight-links · big-buttons</text>
+
+<rect x="561" y="572" width="158" height="68" fill="#d4edda" stroke="#5a9e6f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="640" y="596" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a4d2a" font-family="Arial">Page Content</text>
+<text x="640" y="612" text-anchor="middle" font-size="10.5" fill="#1a4d2a" font-family="Arial">Font size CSS custom props</text>
+<text x="640" y="627" text-anchor="middle" font-size="10"   fill="#1a4d2a" font-family="Arial">Letter · line · text-align</text>
+
+<rect x="739" y="572" width="158" height="68" fill="#d4edda" stroke="#5a9e6f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="818" y="596" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a4d2a" font-family="Arial">Images &amp; Media</text>
+<text x="818" y="612" text-anchor="middle" font-size="10.5" fill="#1a4d2a" font-family="Arial">visibility toggle · pause</text>
+<text x="818" y="627" text-anchor="middle" font-size="10"   fill="#1a4d2a" font-family="Arial">audio · video · YouTube · GIF</text>
+
+<!-- ════════════════════════════════════════════
+     ARROWS
+     ════════════════════════════════════════════ -->
+
+<!-- Host Website → Core CSS (diagonal) -->
+<line x1="131" y1="204" x2="225" y2="159" stroke="#111" stroke-width="3.5" marker-end="url(#arr)"/>
+
+<!-- User → Accessibility Panel (diagonal) -->
+<line x1="131" y1="374" x2="225" y2="298" stroke="#111" stroke-width="3.5" marker-end="url(#arr)"/>
+
+<!-- Core CSS ↓ Accessibility Panel -->
+<line x1="312" y1="192" x2="312" y2="246" stroke="#111" stroke-width="2.5" marker-end="url(#arr)"/>
+
+<!-- Accessibility Panel ↓ Screen Reader Popup -->
+<line x1="312" y1="344" x2="312" y2="400" stroke="#111" stroke-width="2.5" marker-end="url(#arr)"/>
+
+<!-- Core CSS → Feature Engine -->
+<line x1="396" y1="153" x2="461" y2="210" stroke="#111" stroke-width="2.5" marker-end="url(#arr)"/>
+
+<!-- Accessibility Panel → Feature Engine -->
+<line x1="396" y1="290" x2="461" y2="258" stroke="#111" stroke-width="2.5" marker-end="url(#arr)"/>
+
+<!-- Feature Engine ↓ State Manager -->
+<line x1="554" y1="331" x2="554" y2="390" stroke="#111" stroke-width="2.5" marker-end="url(#arr)"/>
+
+<!-- Container right → Web Speech API -->
+<line x1="930" y1="199" x2="988" y2="199" stroke="#111" stroke-width="3.5" marker-end="url(#arr)"/>
+
+<!-- Container right → localStorage -->
+<line x1="930" y1="314" x2="988" y2="314" stroke="#111" stroke-width="3.5" marker-end="url(#arr)"/>
+
+<!-- Container right → CSS/DOM APIs -->
+<line x1="930" y1="429" x2="988" y2="429" stroke="#111" stroke-width="3.5" marker-end="url(#arr)"/>
+
+<!-- Container bottom → HTML Element -->
+<line x1="284" y1="525" x2="284" y2="570" stroke="#111" stroke-width="3.5" marker-end="url(#arr)"/>
+
+<!-- Container bottom → Body Classes -->
+<line x1="462" y1="525" x2="462" y2="570" stroke="#111" stroke-width="3.5" marker-end="url(#arr)"/>
+
+<!-- Container bottom → Page Content -->
+<line x1="640" y1="525" x2="640" y2="570" stroke="#111" stroke-width="3.5" marker-end="url(#arr)"/>
+
+<!-- Container bottom → Images & Media -->
+<line x1="818" y1="525" x2="818" y2="570" stroke="#111" stroke-width="3.5" marker-end="url(#arr)"/>
+
+</svg>
+
+<!-- ═══════════════════════ SECURITY FINDINGS ═══════════════════════ -->
+<div class="sec-title">Security Findings</div>
+<table>
+  <thead>
+    <tr>
+      <th style="width:90px">Severity</th>
+      <th style="width:190px">Finding</th>
+      <th style="width:175px">Location</th>
+      <th>Detail</th>
+      <th style="width:220px">Recommended Fix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="b high">HIGH</span></td>
+      <td>XSS via <code>img.alt</code></td>
+      <td><code>toggleAltText()</code><br>Line 1224</td>
+      <td><code>tooltip.innerHTML = img.alt</code> — crafted alt text in any CMS-managed image executes arbitrary HTML/JS in page context.</td>
+      <td><span class="fix">Use <code>tooltip.textContent = img.alt</code></span></td>
+    </tr>
+    <tr>
+      <td><span class="b medium">MEDIUM</span></td>
+      <td><code>getPageStructure()</code><br>Line 1756</td>
+      <td>Halts JS execution when DevTools is open. Exposes internal call stack and local variables to anyone inspecting the page.</td>
+    </tr>
+    <tr>
+      <td><span class="b low">LOW</span></td>
+      <td>Global <code>window</code> pollution</td>
+      <td>Multiple locations</td>
+      <td><code>window._dwaoMouseOver</code>, <code>window._dwaoMouseOut</code>, <code>window._magnifierListeners</code>, <code>window.magnifierEnabled</code> leak onto <code>window</code>. Name collision with host-page scripts silently breaks features.</td>
+      <td><span class="fix">Move into IIFE closure or namespace under <code>window.DWAOAccessibility._internal</code></span></td>
+    </tr>
+    <tr>
+      <td><span class="b low">LOW</span></td>
+      <td>Brand color CSS injection</td>
+      <td>Vanilla JS &amp; CSS — Lines 186–190</td>
+      <td><code>data-brand-color</code> is string-interpolated directly into CSS without validation. A malformed value can break all widget styles for every visitor.</td>
+      <td><span class="fix">Validate against <code>/^#[0-9a-f]{3,6}$|^rgb\(/i</code></span></td>
+    </tr>
+    <tr>
+      <td><span class="b low">LOW</span></td>
+      <td>Persisted state restored via <code>.click()</code></td>
+      <td><code>initAccessibilityHandlers</code><br>Line 2229</td>
+      <td>Replaying <code>localStorage</code> by simulating click events triggers <code>speechSynthesis.speak()</code> without a real user gesture — browsers silently block it, breaking TTS restore.</td>
+      <td><span class="fix">Call feature functions directly instead of <code>card.click()</code></span></td>
+    </tr>
+    <tr>
+      <td><span class="b info">INFO</span></td>
+      <td><code>innerHTML</code> footgun in <code>createEl()</code></td>
+      <td><code>createEl()</code> — Line 128</td>
+      <td>All current callers pass static strings — no active XSS path today. But any future caller passing user-controlled content is unsafe with no guard or lint warning.</td>
+      <td><span class="fix">Add a <code>createElText()</code> variant using <code>textContent</code> for user data</span></td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+</body>
+</html>
