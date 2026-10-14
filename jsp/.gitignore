@@ -1,0 +1,10 @@
+# Maven build output
+target/
+
+# Static demo export (example/tools/export-static.py)
+dist/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

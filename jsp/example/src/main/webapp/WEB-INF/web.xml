@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+    <display-name>SHOP.CO</display-name>
+
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+    <request-character-encoding>UTF-8</request-character-encoding>
+    <response-character-encoding>UTF-8</response-character-encoding>
+
+    <jsp-config>
+        <jsp-property-group>
+            <url-pattern>*.jsp</url-pattern>
+            <page-encoding>UTF-8</page-encoding>
+            <trim-directive-whitespaces>true</trim-directive-whitespaces>
+        </jsp-property-group>
+    </jsp-config>
+
+    <!-- includes/ holds page fragments: usable via <jsp:include>, not opened directly in the browser -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Page fragments</web-resource-name>
+            <url-pattern>/includes/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint />
+    </security-constraint>
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error/404.jsp</location>
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/error/500.jsp</location>
+    </error-page>
+</web-app>
