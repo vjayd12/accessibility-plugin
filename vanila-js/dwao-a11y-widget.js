@@ -171,6 +171,14 @@
     return el;
   }
 
+  // querySelectorAll that also includes root itself, so settings can be
+  // applied to just a newly added part of the page
+  function queryIn(root, selector) {
+    var list = Array.from(root.querySelectorAll(selector));
+    if (root.matches && root.matches(selector)) list.unshift(root);
+    return list;
+  }
+
   // ── State Variables ────────────────────────────────────
   var pageStructureBuilt = false;
   var linkLoaded = false;
@@ -585,7 +593,7 @@
   // ── Feature Action Map ─────────────────────────────────
   var optionActions = {
     Blindness: function () {
-      toggleReadPage();
+      toggleReadPage("blindness");
     },
     "Visually Impaired": function () {
       toggleHighContrast();
@@ -684,7 +692,7 @@
       toggleEnlargeButtons();
     },
     "Read Page": function () {
-      toggleReadPage();
+      toggleReadPage("readPage");
     },
     "Virtual Keyboard": function () {
       toggleVirtualKeyboard();
@@ -894,7 +902,7 @@
     card.onclick = function () {
       requestAnimationFrame(function () {
         action();
-        if (option.dataUniqueKey === "blindness") {
+        if (option.dataUniqueKey === "blindness" && card.classList.contains("active")) {
           var p = document.querySelector(".accessibility-panel");
           var sr = document.querySelector(".screen-reader-popup");
           if (p) p.style.display = "none";
@@ -1515,6 +1523,12 @@
           autoLabelFields(node);
           fixIframeTitles(node);
           unblockPasswordPaste(node);
+          // Apply active settings to content added later (API data, popups, new routes)
+          if (fontSizeInitialized) initFontSizeElements(node);
+          if (typoInitialized) initTypoElements(node);
+          if (textAlignInitialized) initTextAlignElements(node);
+          if (imagesHidden) hideImagesIn(node);
+          if (mediaPaused) pauseCarousels(node);
         });
       });
     });
@@ -1544,10 +1558,12 @@
   }
 
   // ── Class-based typography init ────────────────────────
-  function initFontSizeElements() {
-    if (fontSizeInitialized) return;
+  // Without root: marks the whole page once. With root: marks only that
+  // newly added content.
+  function initFontSizeElements(root) {
+    if (fontSizeInitialized && !root) return;
     var ap = document.querySelector(".accessibility-panel");
-    document.querySelectorAll(typographyElements).forEach(function (el) {
+    queryIn(root || document, typographyElements).forEach(function (el) {
       if (ap && ap.contains(el)) return;
       if (el.tagName === "IMG") return;
       var text = el.innerText || el.textContent;
@@ -1561,10 +1577,10 @@
     fontSizeInitialized = true;
   }
 
-  function initTypoElements() {
-    if (typoInitialized) return;
+  function initTypoElements(root) {
+    if (typoInitialized && !root) return;
     var ap = document.querySelector(".accessibility-panel");
-    document.querySelectorAll(typographyElements).forEach(function (el) {
+    queryIn(root || document, typographyElements).forEach(function (el) {
       if (ap && ap.contains(el)) return;
       var text = el.innerText || el.textContent;
       if (!text || !text.trim().length) return;
@@ -1573,13 +1589,13 @@
     typoInitialized = true;
   }
 
-  function initTextAlignElements() {
-    if (textAlignInitialized) return;
+  function initTextAlignElements(root) {
+    if (textAlignInitialized && !root) return;
     var ap = document.querySelector(".accessibility-panel");
     var pl = document.querySelector("#pageList");
     var safe =
       "h1, h2, h3, h4, h5, h6, p, li, blockquote, article, section, main";
-    document.querySelectorAll(safe).forEach(function (el) {
+    queryIn(root || document, safe).forEach(function (el) {
       if (ap && ap.contains(el)) return;
       if (pl && pl.contains(el)) return;
       if (
@@ -1603,7 +1619,10 @@
     });
     document.body.classList.add(fontSizeClasses[fontSizeLevel]);
     if (!fontSizeInitialized) {
-      requestAnimationFrame(initFontSizeElements);
+      // Wrapped so the rAF timestamp isn't passed in as root
+      requestAnimationFrame(function () {
+        initFontSizeElements();
+      });
     }
   }
 
@@ -1658,28 +1677,74 @@
   function toggleImages() {
     var ap = document.querySelector(".accessibility-panel");
     var tb = document.getElementById("accessibilityToggleBtn");
-    document.querySelectorAll("img, svg").forEach(function (img) {
+    if (!imagesHidden) {
+      hideImagesIn(document);
+    } else {
+      document.querySelectorAll("img, svg").forEach(function (img) {
+        if ((ap && ap.contains(img)) || (tb && tb.contains(img))) return;
+        img.style.visibility = "visible";
+      });
+      document
+        .querySelectorAll("[data-original-background-image]")
+        .forEach(function (el) {
+          el.style.backgroundImage = el.dataset.originalBackgroundImage;
+          delete el.dataset.originalBackgroundImage;
+        });
+      restoreTextColors();
+    }
+    imagesHidden = !imagesHidden;
+  }
+
+  // Hides images and background images inside root (whole page or new content)
+  function hideImagesIn(root) {
+    var ap = document.querySelector(".accessibility-panel");
+    var tb = document.getElementById("accessibilityToggleBtn");
+    queryIn(root, "img, svg").forEach(function (img) {
       if ((ap && ap.contains(img)) || (tb && tb.contains(img))) return;
-      img.style.visibility = imagesHidden ? "visible" : "hidden";
+      img.style.visibility = "hidden";
     });
-    document.querySelectorAll("*").forEach(function (el) {
+    queryIn(root, "*").forEach(function (el) {
       if ((ap && ap.contains(el)) || (tb && tb.contains(el))) return;
-      var cs = window.getComputedStyle(el);
-      var bg = cs.backgroundImage;
-      var hasBg = bg && bg !== "none" && bg !== "initial";
-      if (!imagesHidden) {
-        if (hasBg && bg.indexOf("url(") !== -1) {
-          if (!el.dataset.originalBackgroundImage) {
-            el.dataset.originalBackgroundImage = bg;
-          }
-          el.style.backgroundImage = "none";
+      var bg = window.getComputedStyle(el).backgroundImage;
+      if (bg && bg.indexOf("url(") !== -1) {
+        if (!el.dataset.originalBackgroundImage) {
+          el.dataset.originalBackgroundImage = bg;
         }
-      } else if (el.dataset.originalBackgroundImage) {
-        el.style.backgroundImage = el.dataset.originalBackgroundImage;
-        delete el.dataset.originalBackgroundImage;
+        // important: sites may set background images with !important
+        el.style.setProperty("background-image", "none", "important");
+        darkenLightText(el);
       }
     });
-    imagesHidden = !imagesHidden;
+  }
+
+  // True for an opaque colour that is light (e.g. white text)
+  function isLightColor(color) {
+    var c = (color.match(/[\d.]+/g) || []).map(Number);
+    if (c.length < 3 || c[3] === 0) return false;
+    return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2] > 160;
+  }
+
+  // Light text that sat on a now-removed background image would be unreadable
+  // on a light background, so turn it dark (unless el has a dark background).
+  // The original colour is kept so it can be restored.
+  function darkenLightText(el) {
+    var bg = window.getComputedStyle(el).backgroundColor;
+    var c = (bg.match(/[\d.]+/g) || []).map(Number);
+    if (c.length >= 3 && c[3] !== 0 && !isLightColor(bg)) return;
+    queryIn(el, "*").forEach(function (t) {
+      if (t.hasAttribute("data-dwas-orig-color")) return;
+      if (!isLightColor(window.getComputedStyle(t).color)) return;
+      t.setAttribute("data-dwas-orig-color", t.style.color);
+      t.style.setProperty("color", "#111", "important");
+    });
+  }
+
+  // Undo darkenLightText
+  function restoreTextColors() {
+    document.querySelectorAll("[data-dwas-orig-color]").forEach(function (t) {
+      t.style.color = t.getAttribute("data-dwas-orig-color");
+      t.removeAttribute("data-dwas-orig-color");
+    });
   }
 
   // ── Image description tooltip ──────────────────────────
@@ -1739,7 +1804,10 @@
         document.body.classList.remove(c);
       });
       document.body.classList.add(letterSpacingClasses[step]);
-      if (!typoInitialized) requestAnimationFrame(initTypoElements);
+      if (!typoInitialized)
+        requestAnimationFrame(function () {
+          initTypoElements();
+        });
     },
     stepClassName: "letter-spacing-steps",
   });
@@ -1750,7 +1818,10 @@
         document.body.classList.remove(c);
       });
       document.body.classList.add(lineHeightClasses[step]);
-      if (!typoInitialized) requestAnimationFrame(initTypoElements);
+      if (!typoInitialized)
+        requestAnimationFrame(function () {
+          initTypoElements();
+        });
     },
     stepClassName: "line-spacing-steps",
   });
@@ -1761,7 +1832,10 @@
         document.body.classList.remove(c);
       });
       document.body.classList.add(textAlignClasses[step]);
-      if (!textAlignInitialized) requestAnimationFrame(initTextAlignElements);
+      if (!textAlignInitialized)
+        requestAnimationFrame(function () {
+          initTextAlignElements();
+        });
     },
     stepClassName: "text-toggle-steps",
   });
@@ -1828,13 +1902,16 @@
         gif.src = gif.dataset.originalSrc;
       });
       if (!document.getElementById(pauseId)) {
+        // Near-zero transitions instead of none: carousels like Swiper wait for
+        // transitionend and get stuck if it never fires
         document.head.appendChild(
           createEl("style", {
             id: pauseId,
-            text: "* { animation: none !important; transition: none !important; }",
+            text: "* { animation: none !important; transition-duration: 0.001s !important; transition-delay: 0s !important; }",
           }),
         );
       }
+      pauseCarousels(document);
       document.body.classList.add("pause-stop-media");
       mediaPaused = true;
     } else {
@@ -1853,11 +1930,27 @@
             iframe.src = src;
           }
         });
+      // Restart only the carousels that Pause Media stopped
+      document.querySelectorAll("[data-dwas-autoplay]").forEach(function (el) {
+        delete el.dataset.dwasAutoplay;
+        if (el.swiper && el.swiper.autoplay) el.swiper.autoplay.start();
+      });
       var tag = document.getElementById(pauseId);
       if (tag) tag.remove();
       document.body.classList.remove("pause-stop-media");
       mediaPaused = false;
     }
+  }
+
+  // Stops autoplaying Swiper carousels and marks them for restart
+  function pauseCarousels(root) {
+    queryIn(root, ".swiper, .swiper-container").forEach(function (el) {
+      var autoplay = el.swiper && el.swiper.autoplay;
+      if (autoplay && autoplay.running) {
+        autoplay.stop();
+        el.dataset.dwasAutoplay = "1";
+      }
+    });
   }
 
   // ── Color filters on <html> ────────────────────────────
@@ -1948,8 +2041,23 @@
   var utterance;
   var lastSpokenText = "";
   var currentCharIndex = 0;
-  function toggleReadPage() {
+  // "idle": hover reading, "reading": Start, "paused".
+  // Hover reading only runs when idle, so it can't override Start/Pause.
+  var readerState = "idle";
+  // Pending hover read, and the element currently read on hover
+  var hoverReadTimer = null;
+  var hoverReadEl = null;
+  function toggleReadPage(cardKey) {
     if (!window.speechSynthesis) return;
+    // Turning the card off stops reading and closes the reader; the close
+    // button also turns off both reader cards (Blindness and Read Page)
+    var card =
+      cardKey && document.querySelector('.option-card[datakey="' + cardKey + '"]');
+    if (card && !card.classList.contains("active")) {
+      var closeBtn = document.querySelector(".screen-reader-popup .close-popup");
+      if (closeBtn && closeBtn._bound) closeBtn.click();
+      return;
+    }
     var panelEl = document.querySelector(".accessibility-panel");
     if (panelEl) panelEl.style.display = "none";
 
@@ -1967,7 +2075,20 @@
       startIndex = startIndex || 0;
       stopReading();
       lastSpokenText = text;
-      utterance = new SpeechSynthesisUtterance(text.substring(startIndex));
+      currentCharIndex = startIndex;
+      var u = (utterance = new SpeechSynthesisUtterance(
+        text.substring(startIndex),
+      ));
+      // When the page finishes reading, hover reading works again
+      utterance.onend = function () {
+        if (utterance === u && readerState === "reading") readerState = "idle";
+      };
+      // e.g. "not-allowed" when the browser blocks speech without a click
+      // (settings restored on page load); go back to hover reading
+      utterance.onerror = function (e) {
+        if (e.error === "interrupted" || e.error === "canceled") return;
+        if (utterance === u && readerState === "reading") readerState = "idle";
+      };
       var voices = synth.getVoices();
       utterance.voice = voices[voiceSelect.value] || voices[0] || null;
       utterance.volume = parseFloat(volumeInput.value);
@@ -1982,13 +2103,20 @@
     }
 
     function startReading() {
+      readerState = "reading";
       speakText(document.body.innerText);
     }
+    // speechSynthesis.pause() is unreliable in Chrome, so Pause cancels and
+    // Resume speaks again from the last word reached (currentCharIndex)
     function pauseReading() {
-      if (synth.speaking && !synth.paused) synth.pause();
+      if (readerState !== "reading") return;
+      readerState = "paused";
+      synth.cancel();
     }
     function resumeReading() {
-      if (synth.paused) synth.resume();
+      if (readerState !== "paused") return;
+      readerState = "reading";
+      speakText(lastSpokenText, currentCharIndex);
     }
     function stopReading() {
       synth.cancel();
@@ -2019,24 +2147,47 @@
       );
     }
 
-    document.removeEventListener("mouseover", _dwaoMouseOver);
+    document.removeEventListener("mousemove", _dwaoMouseOver);
     document.removeEventListener("mouseout", _dwaoMouseOut);
     document.removeEventListener("focusin", _dwaoMouseOver);
     document.removeEventListener("focusout", _dwaoMouseOut);
 
-    _dwaoMouseOver = function (e) {
-      var el = e.target;
-      if (!isSpeakable(el)) return;
+    function readElement(el) {
+      hoverReadEl = el;
       speakText(el.innerText.trim());
       el.classList.add("speak-highlight");
+    }
+    // Keyboard focus is read at once. The mouse (mousemove, so content that
+    // just moves under a still pointer isn't read) is read only after it
+    // rests on an element, so content it merely passes over stays silent.
+    _dwaoMouseOver = function (e) {
+      var el = e.target;
+      if (el === hoverReadEl) return;
+      clearTimeout(hoverReadTimer);
+      if (readerState !== "idle" || !isSpeakable(el)) return;
+      if (e.type === "focusin") {
+        readElement(el);
+      } else if (
+        // Mouse reads only elements with their own text, not layout wrappers
+        // (resting on page background would otherwise read the whole page)
+        Array.from(el.childNodes).some(function (n) {
+          return n.nodeType === 3 && n.textContent.trim();
+        })
+      ) {
+        hoverReadTimer = setTimeout(function () {
+          if (readerState === "idle") readElement(el);
+        }, 400);
+      }
     };
     _dwaoMouseOut = function (e) {
       var el = e.target;
+      clearTimeout(hoverReadTimer);
       if (!isSpeakable(el)) return;
       el.classList.remove("speak-highlight");
-      stopReading();
+      if (el === hoverReadEl) hoverReadEl = null;
+      if (readerState === "idle") stopReading();
     };
-    document.addEventListener("mouseover", _dwaoMouseOver);
+    document.addEventListener("mousemove", _dwaoMouseOver);
     document.addEventListener("mouseout", _dwaoMouseOut);
     // Keyboard users hear content as they Tab to it
     document.addEventListener("focusin", _dwaoMouseOver);
@@ -2047,8 +2198,10 @@
       closePopup._bound = true;
       closePopup.addEventListener("click", function () {
         srUI.style.display = "none";
+        readerState = "idle";
+        clearTimeout(hoverReadTimer);
         synth.cancel();
-        document.removeEventListener("mouseover", _dwaoMouseOver);
+        document.removeEventListener("mousemove", _dwaoMouseOver);
         document.removeEventListener("mouseout", _dwaoMouseOut);
         document.removeEventListener("focusin", _dwaoMouseOver);
         document.removeEventListener("focusout", _dwaoMouseOut);
@@ -2060,17 +2213,7 @@
           .forEach(function (c) {
             c.classList.remove("active");
           });
-        try {
-          var keys = Array.from(
-            document.querySelectorAll(".option-card.active"),
-          ).map(function (c) {
-            return c.getAttribute("datakey");
-          });
-          localStorage.setItem(
-            "accessibility_local_settings",
-            JSON.stringify(keys),
-          );
-        } catch (e) {}
+        saveSettings();
       });
     }
 
@@ -2100,10 +2243,18 @@
         setActive(this);
       });
       stop.addEventListener("click", function () {
+        readerState = "idle";
         stopReading();
         setActive(this);
       });
     }
+    // Read Page starts reading the page right away; Blindness only reads on
+    // hover until Start is pressed. Only from a user click: when settings
+    // are restored on page load, browsers may queue the speech and play it
+    // later, unexpectedly
+    var byUser = !navigator.userActivation || navigator.userActivation.isActive;
+    if (cardKey === "readPage" && start && readerState !== "reading" && byUser)
+      start.click();
   }
 
   // ── Magnifier lens (hover to zoom text) ────────────────
@@ -2233,6 +2384,11 @@
   // ── Page Structure: heading list + scroll-to ───────────
   function getPageStructure() {
     var pl = document.getElementById("pageList");
+    // Rebuild on every open so the list matches the current page
+    if (pl.style.display === "none") {
+      pl.textContent = "";
+      pageStructureBuilt = false;
+    }
     if (!pageStructureBuilt) {
       pl.setAttribute("role", "dialog");
       pl.setAttribute("aria-labelledby", "dwao-ps-title");
@@ -2270,8 +2426,9 @@
         document.querySelectorAll("h1, h2, h3, h4, h5, h6"),
       ).filter(function (h) {
         if (!h.innerText.trim()) return false;
-        if (h.closest(".accessibility-panel")) return false;
-        if (h.closest("#pageList")) return false;
+        // Skip the widget's own headings
+        if (h.closest(".accessibility-panel, #pageList, .screen-reader-popup, #keyboardWrapper"))
+          return false;
         return true;
       });
 
@@ -2286,7 +2443,7 @@
           '<line x1="9" y1="9" x2="9.01" y2="9"/>' +
           '<line x1="15" y1="9" x2="15.01" y2="9"/>' +
           "</svg>" +
-          '<p style="font-size:13px;color:#888;margin:0;line-height:1.6;">Sorry, this page does not have any page structure.</p>';
+          '<p style="font-size:13px;color:#595959;margin:0;line-height:1.6;">No headings were found on this page, so there is no page structure to show.</p>';
         pl.appendChild(emptyState);
       } else {
         var list = createEl("ul", { class: "as-card-content" });
@@ -2468,6 +2625,10 @@
     document.querySelectorAll(".virtual-key").forEach(function (key) {
       if (key._bound) return;
       key._bound = true;
+      // Keep focus (and the selected part of e.g. a date field) on the input
+      key.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+      });
       key.addEventListener("click", function () {
         insertToActiveInput(key.dataset.keyValue);
       });
@@ -2476,40 +2637,30 @@
 
   function insertToActiveInput(char) {
     var el = _vkLastFocus;
-    if (!el || (el.tagName !== "INPUT" && el.tagName !== "TEXTAREA")) return;
+    if (!el || !el.isConnected) return;
+    if (el.tagName !== "INPUT" && el.tagName !== "TEXTAREA" && !el.isContentEditable)
+      return;
 
     if (char === "Shift") {
       _vkShift = !_vkShift;
       return;
     }
-    var start = el.selectionStart;
-    var end = el.selectionEnd;
-    var value = el.value;
-    var newValue = value;
-    var newCaret = start;
-
+    // execCommand types like a real keyboard, so React/MUI fields (OTP boxes,
+    // date pickers built from editable spans) see the change and maxLength applies
+    if (document.activeElement !== el) el.focus();
     if (char === "Delete") {
-      if (start > 0) {
-        newValue = value.slice(0, start - 1) + value.slice(end);
-        newCaret = start - 1;
-      }
-    } else if (char === "Space") {
-      newValue = value.slice(0, start) + " " + value.slice(end);
-      newCaret = start + 1;
+      document.execCommand("delete");
     } else {
-      var c = _vkShift ? char.toUpperCase() : char.toLowerCase();
-      newValue = value.slice(0, start) + c + value.slice(end);
-      newCaret = start + 1;
+      var c =
+        char === "Space" ? " " : _vkShift ? char.toUpperCase() : char.toLowerCase();
+      document.execCommand("insertText", false, c);
     }
-
-    el.value = newValue;
-    el.focus();
-    el.selectionStart = el.selectionEnd = newCaret;
-    el.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
   // ── Reset All ──────────────────────────────────────────
   function resetAllAccessibility() {
+    // Unpause first so media and carousels start playing again
+    if (mediaPaused) pauseStopHideMedia();
     resetFontSize();
 
     if (_magnifierListeners && _magnifierListeners.elements) {
@@ -2555,6 +2706,7 @@
         el.style.backgroundImage = el.dataset.originalBackgroundImage;
         delete el.dataset.originalBackgroundImage;
       });
+    restoreTextColors();
 
     var tip = document.getElementById("img-alt-tooltip");
     if (tip) tip.remove();
@@ -2588,6 +2740,8 @@
     var rl = document.getElementById("adhd-line-overlay");
     if (rl) rl.remove();
 
+    readerState = "idle";
+    clearTimeout(hoverReadTimer);
     if (window.speechSynthesis) window.speechSynthesis.cancel();
 
     var sl = document.querySelector(".skip-link");
@@ -2607,7 +2761,7 @@
     if (sr) sr.style.display = "none";
 
     if (_dwaoMouseOver) {
-      document.removeEventListener("mouseover", _dwaoMouseOver);
+      document.removeEventListener("mousemove", _dwaoMouseOver);
       document.removeEventListener("focusin", _dwaoMouseOver);
     }
     if (_dwaoMouseOut) {
@@ -2617,6 +2771,25 @@
     document.querySelectorAll(".speak-highlight").forEach(function (el) {
       el.classList.remove("speak-highlight");
     });
+  }
+
+  // Saves active options; stepped options also save their level,
+  // e.g. ["textSize:2", "highContrast"]
+  function saveSettings() {
+    try {
+      var keys = Array.from(
+        document.querySelectorAll(".option-card.active"),
+      ).map(function (c) {
+        var key = c.getAttribute("datakey");
+        var level = Array.from(c.querySelectorAll(".option-steps li")).findIndex(
+          function (li) {
+            return li.classList.contains("active");
+          },
+        );
+        return level > -1 ? key + ":" + level : key;
+      });
+      localStorage.setItem("accessibility_local_settings", JSON.stringify(keys));
+    } catch (e) {}
   }
 
   // ── Init accordion + interactions ──────────────────────
@@ -2667,23 +2840,10 @@
         }, 150);
 
         // persist active options
-        var persist = function () {
-          try {
-            var keys = Array.from(
-              document.querySelectorAll(".option-card.active"),
-            ).map(function (c) {
-              return c.getAttribute("datakey");
-            });
-            localStorage.setItem(
-              "accessibility_local_settings",
-              JSON.stringify(keys),
-            );
-          } catch (e) {}
-        };
         if (typeof requestIdleCallback === "function") {
-          requestIdleCallback(persist);
+          requestIdleCallback(saveSettings);
         } else {
-          setTimeout(persist, 0);
+          setTimeout(saveSettings, 0);
         }
       });
     });
@@ -2761,10 +2921,16 @@
         if (Array.isArray(keys)) {
           keys.forEach(function (k) {
             if (typeof k !== "string") return;
+            var parts = k.split(":");
             var card = document.querySelector(
-              '.option-card[datakey="' + CSS.escape(k) + '"]',
+              '.option-card[datakey="' + CSS.escape(parts[0]) + '"]',
             );
-            if (card && !card.classList.contains("active")) card.click();
+            if (!card || card.classList.contains("active")) return;
+            // Each click moves a stepped option to its next level (levels go
+            // 1, 2, 0), so click until the saved level is reached. Saves from
+            // older versions have no level and get a single click.
+            var clicks = parts.length > 1 ? parseInt(parts[1], 10) || 3 : 1;
+            for (var i = 0; i < clicks; i++) card.click();
           });
         }
       }
