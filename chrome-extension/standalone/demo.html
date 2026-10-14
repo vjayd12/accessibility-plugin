@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DWAO Accessibility Audit — Demo</title>
+</head>
+<body>
+  <h1>DWAO Accessibility Audit — demo page</h1>
+  <p>This page has a few deliberate issues (low-contrast text, an image with no alt text) so you
+  can see the audit catch them.</p>
+
+  <img width="80" height="80" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBTAA7">
+  <button style="background:#eee;color:#ddd;border:none;padding:8px 12px;">low contrast button</button>
+
+  <p>
+    <button id="runAudit">Run accessibility audit</button>
+  </p>
+
+  <!--
+    data-autorun="false" keeps the sidebar closed until the button above is
+    clicked — this is the same pattern you'd use in your own codebase.
+  -->
+  <script src="dwao-a11y-audit.js" data-autorun="false"></script>
+  <script>
+    document.getElementById('runAudit').addEventListener('click', () => {
+      window.DWAOAudit.open('audit');
+    });
+  </script>
+</body>
+</html>

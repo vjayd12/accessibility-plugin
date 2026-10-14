@@ -1,0 +1,36 @@
+/**
+ * DWAO AI — Accessibility Audit (standalone build)
+ *
+ * Full WCAG 2.2 audit engine (56+ automated checkpoints) + report UI, packaged
+ * as a single self-contained script — no browser extension required.
+ *
+ * This is a separately maintained tool: edit standalone/src/audit-engine.js
+ * and standalone/src/content.js directly (not the repo-root files, which back
+ * the internal Chrome extension), then run standalone/build.sh to regenerate
+ * dwao-a11y-audit.js.
+ *
+ * Run it one of three ways:
+ *
+ *   1. DevTools console — paste the whole file's contents into the console on
+ *      any page and hit Enter. Opens the audit sidebar immediately.
+ *
+ *   2. Bookmarklet — one-click, no code changes to the site:
+ *        javascript:(function(){var s=document.createElement('script');s.src='https://YOUR-HOST/dwao-a11y-audit.js';document.body.appendChild(s);})()
+ *
+ *   3. Script tag in your own codebase (e.g. dev/staging builds only):
+ *        <script src="/path/to/dwao-a11y-audit.js" data-autorun="false"></script>
+ *      With data-autorun="false" the sidebar does NOT open automatically —
+ *      trigger it yourself via the public API:
+ *        window.DWAOAudit.open()      // open the sidebar (optionally pass a
+ *                                      // feature name: 'audit','contrast',
+ *                                      // 'alttext','focus','keyboard',
+ *                                      // 'screenreader','colorblind','vision','dyslexia')
+ *        window.DWAOAudit.close()     // tear down the UI
+ *        window.DWAOAudit.toggle()    // open if closed, close if open
+ *      Omit data-autorun (or set it to any other value) to open immediately,
+ *      same as options 1 and 2.
+ *
+ * Reports: from the Audit view, use the "HTML report" / export controls to
+ * download a self-contained JSON or HTML report of every issue found — no
+ * server or extension involved, it's a client-side Blob download.
+ */
