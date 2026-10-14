@@ -593,7 +593,7 @@
   // ── Feature Action Map ─────────────────────────────────
   var optionActions = {
     Blindness: function () {
-      toggleReadPage();
+      toggleReadPage("blindness");
     },
     "Visually Impaired": function () {
       toggleHighContrast();
@@ -692,7 +692,7 @@
       toggleEnlargeButtons();
     },
     "Read Page": function () {
-      toggleReadPage();
+      toggleReadPage("readPage");
     },
     "Virtual Keyboard": function () {
       toggleVirtualKeyboard();
@@ -902,7 +902,7 @@
     card.onclick = function () {
       requestAnimationFrame(function () {
         action();
-        if (option.dataUniqueKey === "blindness") {
+        if (option.dataUniqueKey === "blindness" && card.classList.contains("active")) {
           var p = document.querySelector(".accessibility-panel");
           var sr = document.querySelector(".screen-reader-popup");
           if (p) p.style.display = "none";
@@ -2041,12 +2041,23 @@
   var utterance;
   var lastSpokenText = "";
   var currentCharIndex = 0;
-  // "idle": hover reading, "reading": Start, "paused", "stopped".
-  // Hover reading only runs when idle, so it can't override Start/Pause/Stop.
+  // "idle": hover reading, "reading": Start, "paused".
+  // Hover reading only runs when idle, so it can't override Start/Pause.
   var readerState = "idle";
-  function toggleReadPage() {
+  // Pending hover read, and the element currently read on hover
+  var hoverReadTimer = null;
+  var hoverReadEl = null;
+  function toggleReadPage(cardKey) {
     if (!window.speechSynthesis) return;
-    if (readerState === "stopped") readerState = "idle";
+    // Turning the card off stops reading and closes the reader; the close
+    // button also turns off both reader cards (Blindness and Read Page)
+    var card =
+      cardKey && document.querySelector('.option-card[datakey="' + cardKey + '"]');
+    if (card && !card.classList.contains("active")) {
+      var closeBtn = document.querySelector(".screen-reader-popup .close-popup");
+      if (closeBtn && closeBtn._bound) closeBtn.click();
+      return;
+    }
     var panelEl = document.querySelector(".accessibility-panel");
     if (panelEl) panelEl.style.display = "none";
 
@@ -2070,6 +2081,12 @@
       ));
       // When the page finishes reading, hover reading works again
       utterance.onend = function () {
+        if (utterance === u && readerState === "reading") readerState = "idle";
+      };
+      // e.g. "not-allowed" when the browser blocks speech without a click
+      // (settings restored on page load); go back to hover reading
+      utterance.onerror = function (e) {
+        if (e.error === "interrupted" || e.error === "canceled") return;
         if (utterance === u && readerState === "reading") readerState = "idle";
       };
       var voices = synth.getVoices();
@@ -2130,24 +2147,47 @@
       );
     }
 
-    document.removeEventListener("mouseover", _dwaoMouseOver);
+    document.removeEventListener("mousemove", _dwaoMouseOver);
     document.removeEventListener("mouseout", _dwaoMouseOut);
     document.removeEventListener("focusin", _dwaoMouseOver);
     document.removeEventListener("focusout", _dwaoMouseOut);
 
-    _dwaoMouseOver = function (e) {
-      var el = e.target;
-      if (readerState !== "idle" || !isSpeakable(el)) return;
+    function readElement(el) {
+      hoverReadEl = el;
       speakText(el.innerText.trim());
       el.classList.add("speak-highlight");
+    }
+    // Keyboard focus is read at once. The mouse (mousemove, so content that
+    // just moves under a still pointer isn't read) is read only after it
+    // rests on an element, so content it merely passes over stays silent.
+    _dwaoMouseOver = function (e) {
+      var el = e.target;
+      if (el === hoverReadEl) return;
+      clearTimeout(hoverReadTimer);
+      if (readerState !== "idle" || !isSpeakable(el)) return;
+      if (e.type === "focusin") {
+        readElement(el);
+      } else if (
+        // Mouse reads only elements with their own text, not layout wrappers
+        // (resting on page background would otherwise read the whole page)
+        Array.from(el.childNodes).some(function (n) {
+          return n.nodeType === 3 && n.textContent.trim();
+        })
+      ) {
+        hoverReadTimer = setTimeout(function () {
+          if (readerState === "idle") readElement(el);
+        }, 400);
+      }
     };
     _dwaoMouseOut = function (e) {
       var el = e.target;
+      clearTimeout(hoverReadTimer);
       if (!isSpeakable(el)) return;
       el.classList.remove("speak-highlight");
+      if (el === hoverReadEl) hoverReadEl = null;
       if (readerState === "idle") stopReading();
     };
-    document.addEventListener("mouseover", _dwaoMouseOver);
+    document.addEventListener("mousemove", _dwaoMouseOver);
     document.addEventListener("mouseout", _dwaoMouseOut);
     // Keyboard users hear content as they Tab to it
     document.addEventListener("focusin", _dwaoMouseOver);
@@ -2159,8 +2199,9 @@
       closePopup.addEventListener("click", function () {
         srUI.style.display = "none";
         readerState = "idle";
+        clearTimeout(hoverReadTimer);
         synth.cancel();
-        document.removeEventListener("mouseover", _dwaoMouseOver);
+        document.removeEventListener("mousemove", _dwaoMouseOver);
         document.removeEventListener("mouseout", _dwaoMouseOut);
         document.removeEventListener("focusin", _dwaoMouseOver);
         document.removeEventListener("focusout", _dwaoMouseOut);
@@ -2202,11 +2243,18 @@
         setActive(this);
       });
       stop.addEventListener("click", function () {
-        readerState = "stopped";
+        readerState = "idle";
         stopReading();
         setActive(this);
       });
     }
+    // Read Page starts reading the page right away; Blindness only reads on
+    // hover until Start is pressed. Only from a user click: when settings
+    // are restored on page load, browsers may queue the speech and play it
+    // later, unexpectedly
+    var byUser = !navigator.userActivation || navigator.userActivation.isActive;
+    if (cardKey === "readPage" && start && readerState !== "reading" && byUser)
+      start.click();
   }
 
   // ── Magnifier lens (hover to zoom text) ────────────────
@@ -2693,6 +2741,7 @@
     if (rl) rl.remove();
 
     readerState = "idle";
+    clearTimeout(hoverReadTimer);
     if (window.speechSynthesis) window.speechSynthesis.cancel();
 
     var sl = document.querySelector(".skip-link");
@@ -2712,7 +2761,7 @@
     if (sr) sr.style.display = "none";
 
     if (_dwaoMouseOver) {
-      document.removeEventListener("mouseover", _dwaoMouseOver);
+      document.removeEventListener("mousemove", _dwaoMouseOver);
       document.removeEventListener("focusin", _dwaoMouseOver);
     }
     if (_dwaoMouseOut) {
