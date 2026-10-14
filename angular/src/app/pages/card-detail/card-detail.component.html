@@ -1,0 +1,16 @@
+<div class="card-detail-page">
+  @if (card) {
+    <button class="back-btn" (click)="goBack()">← Back</button>
+    <div class="card-detail">
+      <span class="card-category">{{ card.category }}</span>
+      <h1>{{ card.title }}</h1>
+      <span class="card-date">{{ card.date }}</span>
+      <p class="card-description">{{ card.description }}</p>
+      <hr />
+      <p class="card-body">{{ card.body }}</p>
+    </div>
+  } @else {
+    <p>Card not found.</p>
+    <button (click)="goBack()">Back to cards</button>
+  }
+</div>

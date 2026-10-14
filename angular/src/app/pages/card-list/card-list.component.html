@@ -1,0 +1,17 @@
+<div class="card-list-page">
+  <app-banner />
+  <div id="cards" class="card-section">
+    <h2 class="section-title">All Cards</h2>
+    <div class="card-grid">
+      @for (card of cards; track card.id) {
+        <app-card
+          [id]="card.id"
+          [title]="card.title"
+          [category]="card.category"
+          [description]="card.description"
+          [date]="card.date"
+        />
+      }
+    </div>
+  </div>
+</div>

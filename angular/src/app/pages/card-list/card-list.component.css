@@ -1,0 +1,19 @@
+.card-list-page {
+  text-align: left;
+}
+
+.card-section {
+  padding: 40px 32px;
+}
+
+.section-title {
+  font-size: 24px;
+  margin-bottom: 24px;
+  color: var(--text-h);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
