@@ -1104,18 +1104,6 @@
   buildAccessibilityPanel();
   buildScreenReaderPanel();
 
-  // ── Pre-init typography in idle time ───────────────────
-  function preInitTypography() {
-    initFontSizeElements();
-    initTypoElements();
-    initTextAlignElements();
-  }
-  if (typeof requestIdleCallback === "function") {
-    requestIdleCallback(preInitTypography);
-  } else {
-    setTimeout(preInitTypography, 200);
-  }
-
   // ── Toggle Button ──────────────────────────────────────
   var toggleBtn = document.getElementById("accessibilityToggleBtn");
   if (toggleBtn) {
@@ -1563,16 +1551,18 @@
   function initFontSizeElements(root) {
     if (fontSizeInitialized && !root) return;
     var ap = document.querySelector(".accessibility-panel");
+    // Read every font size first, then write, so the page is not re-laid
+    // out once per element (forced reflow)
+    var items = [];
     queryIn(root || document, typographyElements).forEach(function (el) {
       if (ap && ap.contains(el)) return;
       if (el.tagName === "IMG") return;
-      var text = el.innerText || el.textContent;
-      if (!text || !text.trim().length) return;
-      el.style.setProperty(
-        "--dwas-orig-fs",
-        window.getComputedStyle(el).fontSize,
-      );
-      el.classList.add("dwas-fs-init");
+      if (!el.textContent.trim()) return;
+      items.push([el, window.getComputedStyle(el).fontSize]);
+    });
+    items.forEach(function (item) {
+      item[0].style.setProperty("--dwas-orig-fs", item[1]);
+      item[0].classList.add("dwas-fs-init");
     });
     fontSizeInitialized = true;
   }
@@ -1582,8 +1572,7 @@
     var ap = document.querySelector(".accessibility-panel");
     queryIn(root || document, typographyElements).forEach(function (el) {
       if (ap && ap.contains(el)) return;
-      var text = el.innerText || el.textContent;
-      if (!text || !text.trim().length) return;
+      if (!el.textContent.trim()) return;
       el.classList.add("dwas-typo-init");
     });
     typoInitialized = true;
