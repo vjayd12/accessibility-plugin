@@ -146,7 +146,20 @@
   <p>Use the dedicated <strong>React</strong> or <strong>Angular</strong> kit instead of this file. Their build of the widget adds <code>DWAOAccessibility.reinit()</code> for client-side route changes. This build has no <code>reinit()</code>, and loading it a second time (for example from a component that mounts twice) creates a second panel.</p>
 
   <h2>Styling the Button</h2>
-  <p>The widget positions the button itself (see <code>data-position</code>) and colours it with the theme or brand colour. To change the colour, use <code>data-theme</code> or <code>data-brand-color</code> rather than CSS. For other tweaks, target <code>#accessibilityToggleBtn</code> and <code>.accessibility-panel</code>. Positioning rules use <code>!important</code>, so avoid overriding <code>position</code>.</p>
+  <p>The widget positions the button itself (see <code>data-position</code>) and colours it with the theme or brand colour. To change colours, use <code>data-theme</code>, <code>data-brand-color</code> or the colour variables below. For other tweaks, target <code>#accessibilityToggleBtn</code> and <code>.accessibility-panel</code>. Positioning rules use <code>!important</code>, so avoid overriding <code>position</code>.</p>
+
+  <h2>Customising Colours</h2>
+  <p>Every colour the widget uses is a CSS variable named <code>--dwas-*</code>, defined in one block at the top of the widget's CSS (search <code>dwao-a11y-widget.js</code> for <code>Colour tokens</code>). To change a colour, set the variable in your own stylesheet on <code>:root</code>. No change to the widget file is needed, and your values win whatever order the stylesheets load in.</p>
+<pre><code>:root {
+  --dwas-brand: #0c73b4;      /* button, headings, active cards, focus outline */
+  --dwas-on-brand: #ffffff;   /* text and icons on the brand colour */
+  --dwas-panel-bg: #f9f9f9;   /* panel, Page Structure and keyboard background */
+  --dwas-surface: #ffffff;    /* cards, sections and the Read Page popup */
+  --dwas-text: #111111;       /* panel text and icons */
+  --dwas-border: rgba(17,17,17,0.2);
+}</code></pre>
+  <p>These six cover the panel and button. The full list in the widget file also covers Page Structure (<code>--dwas-ps-*</code>), the Read Page popup (<code>--dwas-popup-*</code>), the virtual keyboard (<code>--dwas-keyboard-*</code>, <code>--dwas-key-border</code>), the image tooltip and Text Zoom lens (<code>--dwas-tooltip-*</code>, <code>--dwas-lens-*</code>) and the features applied to the page (<code>--dwas-highlight-link-*</code>, <code>--dwas-skip-link-*</code>, <code>--dwas-reading-*</code>).</p>
+  <p class="note"><strong>Keep the contrast.</strong> <code>data-brand-color</code> darkens a brand colour that is too light for white text; a colour set with <code>--dwas-brand</code> is used exactly as given. Choose values that reach 4.5:1 for text (for example <code>--dwas-brand</code> against <code>--dwas-on-brand</code> and against <code>--dwas-panel-bg</code>).</p>
 
   <h2>Content Security Policy (CSP)</h2>
   <p>The widget injects its own <code>&lt;style&gt;</code> elements and inline styles, so a strict CSP must allow inline styles. It needs nothing else beyond loading the script itself:</p>
