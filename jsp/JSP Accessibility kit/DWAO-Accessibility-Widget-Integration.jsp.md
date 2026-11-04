@@ -142,6 +142,20 @@ On load, and for any content added later, the widget automatically:
 
 ---
 
+## Colour Contrast: What Your Site Needs
+
+The widget does not change your site's default colours. High Contrast, Invert Colors and the other colour options apply only when a visitor turns them on, but WCAG 1.4.3 (Contrast) and 1.4.11 (Non-text Contrast) require the page to pass by default. Colour contrast failures therefore have to be fixed in your site's own styles and content.
+
+Those fixes are only practical when the site manages its colours centrally:
+
+- **Define colours as CSS variables in one place** (for example `--brand-primary`), including text-safe variants that reach 4.5:1 on their background (for example `--brand-primary-text`). When colours are hard-coded hex values repeated in the global stylesheet and in every component's stylesheet, each failing colour has to be found and changed in every copy.
+- **Change colours in the source, not in compiled CSS.** If the site uses SCSS or LESS variables, update the variable and rebuild; edits to compiled CSS are lost on the next build.
+- **Plan for colours chosen in the CMS.** Colours that authors pick in component settings, inline styles or the rich-text editor cannot be fixed with CSS alone. Limit authors to an accessible colour palette, update the content, or adjust these colours with a script when the page loads.
+
+> Without this, colour contrast changes are hard to implement, easy to miss and easily undone by later releases.
+
+---
+
 ## Security, Privacy & CSP
 
 - No network requests, no cookies, no external fonts or images.
