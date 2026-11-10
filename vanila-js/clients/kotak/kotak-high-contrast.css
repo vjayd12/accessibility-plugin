@@ -1,0 +1,82 @@
+/*
+ * DWAO Accessibility Widget: High Contrast theme for Kotak Mahindra Bank
+ *
+ * Loaded by the widget only when a visitor turns on High Contrast:
+ *   <script src="/.../dwao-a11y-widget.js"
+ *           data-high-contrast-css="/.../kotak-high-contrast.css"></script>
+ *
+ * Every rule is scoped to html.dwas-hc-theme, which the widget sets while
+ * High Contrast is on, so this file changes nothing until then.
+ *
+ * Goal: WCAG 2.1 SC 1.4.3 (4.5:1 for normal text, 3:1 for large text)
+ * while keeping Kotak's brand colours, using text-safe variants of them.
+ */
+
+html.dwas-hc-theme {
+  /* Text-safe Kotak palette */
+  --kotak-red-text: #d41118;   /* brand red #ed1c24 darkened: 5.39:1 on white, 4.57:1 on #ececed */
+  --kotak-navy: #003366;       /* already 12.6:1 on white */
+  --kotak-grey-text: #595959;  /* 7:1 on white, 5.9:1 on #ececed */
+
+  /* Colour maps applied by the widget.
+     Text map: "from:to" text colours, swapped only on light backgrounds.
+     Every "to" colour reaches 4.5:1 on #ffffff and on #ececed. */
+  --dwas-hc-text-map:
+    #ff0000:#d41118 #ed1c24:#d41118 #ed4223:#d41118 #ee1c25:#d41118
+    #ef4123:#d41118 #f7363d:#d41118 #fa1432:#d41118 #fa1000:#d41118
+    #ff4a4a:#d41118 #e6454d:#d41118 #d9534f:#d41118 #777777:#595959
+    #808080:#595959 #8f8f8f:#595959 #999999:#595959 #9d9d9d:#595959
+    #aaaaaa:#595959 #cccccc:#595959 #d6d6d6:#595959 #dcdcdc:#595959
+    #ececed:#595959 #f2f2f2:#595959 #b1904e:#7f6838 #deac1b:#856710
+    #ae850e:#86660b #ffc44e:#906000 #fad58a:#8e6106 #ffcc33:#876500
+    #fabb00:#876500 #f0ad4e:#965d0d #ff8703:#a45600 #1ca1f2:#0a70ad
+    #1897c9:#127399 #189df5:#086fb4 #5bc0de:#1d748e #8799b1:#586c87
+    #667eea:#405ee5 #5cb85c:#357935 #25d366:#157a3b #1cd96c:#107a3d
+    #e70081:#d00074
+  ;
+
+  /* Background map: "from:to" background colours, swapped only behind
+     light (e.g. white) text. Every "to" colour gives white text 4.5:1. */
+  --dwas-hc-bg-map:
+    #ff0000:#d41118 #ed1c24:#d41118 #ed4223:#d41118 #ee1c25:#d41118
+    #ef4123:#d41118 #f7363d:#d41118 #fa1432:#d41118 #fa1000:#d41118
+    #ff4a4a:#d41118 #e6454d:#d41118 #d9534f:#d41118 #b1904e:#8c723e
+    #deac1b:#937212 #ae850e:#94710c #ffc44e:#a06a00 #fad58a:#9f6d07
+    #ffcc33:#967100 #fabb00:#946f00 #f0ad4e:#a6670e #ff8703:#b55f00
+    #1ca1f2:#0b7abe #1897c9:#147fa9 #189df5:#097ac5 #5bc0de:#20809d
+    #8799b1:#627896 #667eea:#506be7 #5cb85c:#3a863a #25d366:#188741
+    #1cd96c:#128844 #e70081:#e40080
+  ;
+}
+
+/* Text placed over photos (hero banners, image cards) has no reliable
+   contrast, so give it a solid Kotak navy backdrop with white text. */
+html.dwas-hc-theme .hero-banner-title,
+html.dwas-hc-theme .hero-banner-desc,
+html.dwas-hc-theme .card-title-with-img {
+  background-color: rgba(0, 51, 102, 0.9) !important;
+  color: #fff !important;
+  text-shadow: none !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  padding: 0.1em 0.3em !important;
+}
+html.dwas-hc-theme .hero-banner-title a,
+html.dwas-hc-theme .hero-banner-desc a,
+html.dwas-hc-theme .card-title-with-img a {
+  color: #fff !important;
+  text-decoration: underline !important;
+}
+
+/* Strong, visible keyboard focus on any background */
+html.dwas-hc-theme :focus-visible {
+  outline: 3px solid var(--kotak-navy) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px #fff !important;
+}
+
+/* Readable placeholder text in form fields */
+html.dwas-hc-theme ::placeholder {
+  color: var(--kotak-grey-text) !important;
+  opacity: 1 !important;
+}

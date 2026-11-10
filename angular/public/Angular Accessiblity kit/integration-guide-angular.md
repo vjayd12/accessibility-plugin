@@ -158,6 +158,7 @@ Set these `data-*` attributes on the widget's script tag. All are optional.
 | `data-position`    | `bottom-left`, `bottom-right`, `top-left`, `top-right`                              | `bottom-left` | Where the button and panel appear                                          |
 | `data-theme`       | `default` (#007abc), `purple` (#663db3), `blue` (#0073BB), `green` (#00875A)        | `default`     | Accent colour                                                              |
 | `data-brand-color` | Hex colour, e.g. `#e63946`                                                          | —             | Overrides `data-theme`. Non-hex values are ignored.                        |
+| `data-high-contrast-css` | URL of a CSS file (http, https or relative) | — | Your site's High Contrast theme. When set, the High Contrast option loads this stylesheet and applies its colour maps instead of the generic saturation filter. See "High Contrast Theme". |
 | `data-lang`        | `en`                                                                                | `en`          | Reserved. The panel is English-only in v2.0.0 and this has no effect.      |
 
 ---
@@ -206,6 +207,25 @@ Every colour the widget uses is a CSS variable named `--dwas-*`, defined in one 
 These six cover the panel and button. The full list in the widget file also covers Page Structure (`--dwas-ps-*`), the Read Page popup (`--dwas-popup-*`), the virtual keyboard (`--dwas-keyboard-*`, `--dwas-key-border`), the image tooltip and Text Zoom lens (`--dwas-tooltip-*`, `--dwas-lens-*`) and the features applied to the page (`--dwas-highlight-link-*`, `--dwas-skip-link-*`, `--dwas-reading-*`).
 
 > **Keep the contrast.** `data-brand-color` darkens a brand colour that is too light for white text; a colour set with `--dwas-brand` is used exactly as given. Choose values that reach 4.5:1 for text (for example `--dwas-brand` against `--dwas-on-brand` and against `--dwas-panel-bg`).
+
+---
+
+## High Contrast Theme
+
+By default, the High Contrast option makes colours more saturated. Your site can supply its own theme instead, so High Contrast fixes real text contrast while keeping your brand colours. Set `data-high-contrast-css` on the widget's script tag to the URL of a stylesheet. When a visitor turns High Contrast on, the widget loads it and adds the class `dwas-hc-theme` to `<html>`; turning it off or Reset All removes everything again.
+
+- **Scope every rule to `html.dwas-hc-theme`**, so the theme changes nothing until High Contrast is on.
+- **Colour maps** (optional): declare text-safe replacements for your hard-coded colours as `from:to` pairs on `html.dwas-hc-theme`. The widget swaps every element using a *from* colour, including author-picked and inline colours and content added later. A text colour is swapped only on a light background, and a background only behind light text, so each swap raises the contrast.
+
+```css
+html.dwas-hc-theme {
+  --dwas-hc-text-map: #ff0000:#d41118 #999999:#595959;
+  --dwas-hc-bg-map:   #ff0000:#d41118;
+}
+html.dwas-hc-theme .hero-title { background: #003366 !important; color: #fff !important; }
+```
+
+> Choose every *to* colour so text reaches 4.5:1 (3:1 for large text) on the backgrounds it is used on. Write each pair as six-digit hex values, without quotes.
 
 ---
 

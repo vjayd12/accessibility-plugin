@@ -150,6 +150,7 @@ export class AppComponent implements OnInit {
       <tr><td><code>data-theme</code></td><td><code>default</code> (#007abc), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td><td><code>default</code></td><td>Accent colour</td></tr>
       <tr><td><code>data-brand-color</code></td><td>Hex colour, e.g. <code>#e63946</code></td><td>—</td><td>Overrides <code>data-theme</code>. Non-hex values are ignored.</td></tr>
       <tr><td><code>data-page-lang</code></td><td>BCP 47 code, e.g. <code>en</code>, <code>en-IN</code>, <code>hi</code></td><td>—</td><td>Language of your page content. Used only if <code>&lt;html&gt;</code> has no <code>lang</code> attribute.</td></tr>
+      <tr><td><code>data-high-contrast-css</code></td><td>URL of a CSS file (http, https or relative)</td><td>—</td><td>Your site's High Contrast theme. When set, the High Contrast option loads this stylesheet and applies its colour maps instead of the generic saturation filter. See "High Contrast Theme".</td></tr>
       <tr><td><code>data-lang</code></td><td><code>en</code></td><td><code>en</code></td><td>Reserved. The panel is English-only in v2.0.0 and this attribute has no effect.</td></tr>
     </tbody>
   </table>
@@ -186,6 +187,19 @@ export class AppComponent implements OnInit {
 }</code></pre>
   <p>These six cover the panel and button. The full list in the widget file also covers Page Structure (<code>--dwas-ps-*</code>), the Read Page popup (<code>--dwas-popup-*</code>), the virtual keyboard (<code>--dwas-keyboard-*</code>, <code>--dwas-key-border</code>), the image tooltip and Text Zoom lens (<code>--dwas-tooltip-*</code>, <code>--dwas-lens-*</code>) and the features applied to the page (<code>--dwas-highlight-link-*</code>, <code>--dwas-skip-link-*</code>, <code>--dwas-reading-*</code>).</p>
   <p class="note"><strong>Keep the contrast.</strong> <code>data-brand-color</code> darkens a brand colour that is too light for white text; a colour set with <code>--dwas-brand</code> is used exactly as given. Choose values that reach 4.5:1 for text (for example <code>--dwas-brand</code> against <code>--dwas-on-brand</code> and against <code>--dwas-panel-bg</code>).</p>
+
+  <h2>High Contrast Theme</h2>
+  <p>By default, the High Contrast option makes colours more saturated. Your site can supply its own theme instead, so High Contrast fixes real text contrast while keeping your brand colours. Set <code>data-high-contrast-css</code> on the widget's script tag to the URL of a stylesheet. When a visitor turns High Contrast on, the widget loads it and adds the class <code>dwas-hc-theme</code> to <code>&lt;html&gt;</code>; turning it off or Reset All removes everything again.</p>
+  <ul>
+    <li><strong>Scope every rule to <code>html.dwas-hc-theme</code></strong>, so the theme changes nothing until High Contrast is on.</li>
+    <li><strong>Colour maps</strong> (optional): declare text-safe replacements for your hard-coded colours as <code>"from:to"</code> pairs on <code>html.dwas-hc-theme</code>. The widget swaps every element using a <em>from</em> colour, including author-picked and inline colours and content added later. A text colour is swapped only on a light background, and a background only behind light text, so each swap raises the contrast.</li>
+  </ul>
+<pre><code>html.dwas-hc-theme {
+  --dwas-hc-text-map: #ff0000:#d41118 #999999:#595959;
+  --dwas-hc-bg-map:   #ff0000:#d41118;
+}
+html.dwas-hc-theme .hero-title { background: #003366 !important; color: #fff !important; }</code></pre>
+  <p class="note">Choose every <em>to</em> colour so text reaches 4.5:1 (3:1 for large text) on the backgrounds it is used on. Write each pair as six-digit hex values, without quotes.</p>
 
   <h2>Security, Privacy &amp; CSP</h2>
   <ul>

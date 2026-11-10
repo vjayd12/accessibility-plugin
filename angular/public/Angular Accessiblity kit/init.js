@@ -25,6 +25,15 @@
     brandColor: _scriptTag.getAttribute("data-brand-color") || "",
     lang: _scriptTag.getAttribute("data-lang") || "en",
     pageLang: _scriptTag.getAttribute("data-page-lang") || "",
+    // Optional site stylesheet for High Contrast (http(s) or relative URL)
+    highContrastCss: (function (u) {
+      try {
+        var x = u && new URL(u, location.href);
+        return x && /^https?:$/.test(x.protocol) ? x.href : "";
+      } catch (e) {
+        return "";
+      }
+    })(_scriptTag.getAttribute("data-high-contrast-css")),
   };
   var THEME_COLORS = {
     purple: "#663db3",
@@ -1540,6 +1549,8 @@
           if (textAlignInitialized) initTextAlignElements(node);
           if (imagesHidden) hideImagesIn(node);
           if (mediaPaused) pauseCarousels(node);
+          if (document.documentElement.classList.contains("dwas-hc-theme"))
+            applyHcColours(node);
         });
       });
     });
@@ -1965,8 +1976,100 @@
   }
 
   // ── Color filters on <html> ────────────────────────────
+  // With a site theme (data-high-contrast-css), High Contrast loads that
+  // stylesheet and applies its colour maps; without one it keeps the
+  // generic saturation filter
   function toggleHighContrast() {
-    document.documentElement.classList.toggle("high-contrast-vi");
+    if (!CONFIG.highContrastCss) {
+      document.documentElement.classList.toggle("high-contrast-vi");
+      return;
+    }
+    setHighContrastTheme(
+      !document.documentElement.classList.contains("dwas-hc-theme"),
+    );
+  }
+
+  function setHighContrastTheme(on) {
+    var root = document.documentElement;
+    root.classList.toggle("dwas-hc-theme", on);
+    if (!on) return restoreHcColours();
+    var link = document.getElementById("dwao-hc-theme");
+    if (link) return applyHcColours(document);
+    link = createEl("link", {
+      rel: "stylesheet",
+      id: "dwao-hc-theme",
+      href: CONFIG.highContrastCss,
+    });
+    link.onload = function () {
+      if (root.classList.contains("dwas-hc-theme")) applyHcColours(document);
+    };
+    document.head.appendChild(link);
+  }
+
+  // The theme can declare colour maps on html.dwas-hc-theme, e.g.
+  //   --dwas-hc-text-map: #ff0000:#d41118 #999999:#595959;
+  //   --dwas-hc-bg-map: #ff0000:#d41118;
+  // A text colour is swapped only on a light background, and a background
+  // only behind light text, so each swap raises the contrast.
+  function hcMap(name) {
+    var map = {};
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+    (v.match(/#[0-9a-f]{6}:#[0-9a-f]{6}/gi) || []).forEach(function (pair) {
+      var n = parseInt(pair.slice(1, 7), 16);
+      map["rgb(" + (n >> 16) + ", " + ((n >> 8) & 255) + ", " + (n & 255) + ")"] =
+        pair.slice(8);
+    });
+    return map;
+  }
+
+  function hasLightBackground(el) {
+    for (var e = el; e && e.nodeType === 1; e = e.parentElement) {
+      var cs = getComputedStyle(e);
+      if (cs.backgroundImage !== "none") return false;
+      var c = (cs.backgroundColor.match(/[\d.]+/g) || []).map(Number);
+      if (c.length >= 3 && c[3] !== 0) return isLightColor(cs.backgroundColor);
+    }
+    return true;
+  }
+
+  function applyHcColours(root) {
+    var textMap = hcMap("--dwas-hc-text-map");
+    var bgMap = hcMap("--dwas-hc-bg-map");
+    if (!Object.keys(textMap).length && !Object.keys(bgMap).length) return;
+    var widget =
+      ".accessibility-div, .accessibility-panel, .screen-reader-popup, #pageList, #keyboardWrapper, #img-alt-tooltip, #text-magnifier-lens";
+    // Read every colour first, then write, to avoid forced reflows
+    var changes = [];
+    queryIn(root, "*").forEach(function (el) {
+      if (!document.body.contains(el) || el.closest(widget)) return;
+      var cs = getComputedStyle(el);
+      var text = textMap[cs.color];
+      if (text && hasLightBackground(el)) changes.push([el, "color", text]);
+      var bg = bgMap[cs.backgroundColor];
+      if (bg && isLightColor(cs.color)) changes.push([el, "background-color", bg]);
+    });
+    changes.forEach(function (c) {
+      var attr = "data-dwas-hc-" + c[1];
+      if (!c[0].hasAttribute(attr))
+        c[0].setAttribute(
+          attr,
+          c[0].style.getPropertyValue(c[1]) + "|" + c[0].style.getPropertyPriority(c[1]),
+        );
+      c[0].style.setProperty(c[1], c[2], "important");
+    });
+  }
+
+  // Undo applyHcColours
+  function restoreHcColours() {
+    ["color", "background-color"].forEach(function (prop) {
+      var attr = "data-dwas-hc-" + prop;
+      document.querySelectorAll("[" + attr + "]").forEach(function (el) {
+        var v = el.getAttribute(attr).split("|");
+        el.style.removeProperty(prop);
+        if (v[0]) el.style.setProperty(prop, v[0], v[1]);
+        el.removeAttribute(attr);
+      });
+    });
   }
   function toggleInvert() {
     var root = document.documentElement;
@@ -2733,7 +2836,9 @@
     var root = document.documentElement;
     root.style.filter = "";
     root.style.backgroundColor = "";
+    restoreHcColours();
     root.classList.remove(
+      "dwas-hc-theme",
       "high-contrast-vi",
       "low-saturation-epilepsy",
       "grayscale-new",
