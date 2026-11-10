@@ -149,7 +149,7 @@
     div.style.justifyContent = "center";
     div.style.width = "24px";
     div.style.height = "24px";
-    div.style.color = BRAND;
+    div.style.color = "var(--dwas-brand)";
     div.className = "dwao-icon";
     div.setAttribute("aria-hidden", "true");
     return div;
@@ -230,21 +230,68 @@
     "/* ── DWAO Accessibility Widget v" +
     VERSION +
     " ── */\n" +
+    "/* Colour tokens: every widget colour is defined here. Override any of\n" +
+    "   them in your own CSS, e.g. :root { --dwas-brand: #0c73b4; }, which wins\n" +
+    "   because these defaults are set on the lower-priority html selector. */\n" +
+    "html {\n" +
+    "  /* Panel and buttons */\n" +
+    "  --dwas-brand: " +
+    BRAND +
+    ";\n" +
+    "  --dwas-on-brand: #fff;\n" +
+    "  --dwas-brand-tint: rgba(102,61,179,0.1);\n" +
+    "  --dwas-panel-bg: #f9f9f9;\n" +
+    "  --dwas-surface: #fff;\n" +
+    "  --dwas-text: #111;\n" +
+    "  --dwas-border: rgba(17,17,17,0.2);\n" +
+    "  --dwas-step: #ccc;\n" +
+    "  --dwas-step-active: #000;\n" +
+    "  --dwas-scroll-track: #e9e6e6;\n" +
+    "  /* Page Structure */\n" +
+    "  --dwas-ps-scroll-thumb: #0073BB;\n" +
+    "  --dwas-ps-scroll-thumb-hover: #005999;\n" +
+    "  --dwas-ps-scroll-track: #f1f1f1;\n" +
+    "  --dwas-ps-item-hover: rgba(0,0,0,0.05);\n" +
+    "  --dwas-ps-empty-text: #595959;\n" +
+    "  --dwas-ps-empty-icon: #aaa;\n" +
+    "  /* Read Page popup */\n" +
+    "  --dwas-popup-text: #444;\n" +
+    "  --dwas-popup-label: #222;\n" +
+    "  --dwas-popup-close: #666;\n" +
+    "  --dwas-popup-button-text: #333;\n" +
+    "  --dwas-input-border: #ccd6e8;\n" +
+    "  /* Virtual keyboard */\n" +
+    "  --dwas-keyboard-bg: #eee;\n" +
+    "  --dwas-keyboard-border: #ccc;\n" +
+    "  --dwas-key-border: #aaa;\n" +
+    "  --dwas-keyboard-close: #888;\n" +
+    "  /* Image Description tooltip and Text Zoom lens */\n" +
+    "  --dwas-tooltip-bg: rgba(15,23,42,0.98);\n" +
+    "  --dwas-tooltip-text: #fff;\n" +
+    "  --dwas-lens-bg: rgba(255,255,255,0.98);\n" +
+    "  --dwas-lens-text: #222;\n" +
+    "  --dwas-lens-close: #555;\n" +
+    "  /* Features applied to the page */\n" +
+    "  --dwas-highlight-link-outline: #f00;\n" +
+    "  --dwas-highlight-link-bg: #ffff99;\n" +
+    "  --dwas-skip-link-bg: #000;\n" +
+    "  --dwas-skip-link-text: #fff;\n" +
+    "  --dwas-reading-mask: rgba(0,0,0,0.7);\n" +
+    "  --dwas-reading-line: #000;\n" +
+    "}\n" +
     ".accessibility-div { position: fixed !important; z-index: 9999; pointer-events: none; }\n" +
     ".accessibility-div * { pointer-events: auto; }\n" +
     "#accessibilityToggleBtn {\n" +
     "  position: fixed !important; z-index: 9999;\n" +
-    "  background: " +
-    BRAND +
-    "; color: #fff;\n" +
+    "  background: var(--dwas-brand); color: var(--dwas-on-brand);\n" +
     "  padding: 10px 16px; border: none; border-radius: 5px;\n" +
     "  cursor: pointer; font-family: inherit; font-size: 14px;\n" +
     "  display: flex; align-items: center; gap: 6px;\n" +
     "}\n" +
-    "#accessibilityToggleBtn .dwao-icon { color: #fff; }\n" +
+    "#accessibilityToggleBtn .dwao-icon { color: var(--dwas-on-brand); }\n" +
     ".accessibility-panel, #pageList {\n" +
     "  display: none; flex-direction: column; align-items: flex-start;\n" +
-    "  gap: 32px; padding: 24px 20px; background: #f9f9f9;\n" +
+    "  gap: 32px; padding: 24px 20px; background: var(--dwas-panel-bg);\n" +
     '  border-radius: 12px; font-family: "Inter", Helvetica, Arial, sans-serif;\n' +
     "  font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);\n" +
     "  z-index: 9998; position: fixed !important;\n" +
@@ -254,15 +301,15 @@
     "#pageList {\n" +
     "  align-items: flex-start; right: 0; top: 0; height: 82vh;\n" +
     "  overflow-y: auto; width: 400px; position: absolute; bottom: 50px;\n" +
-    "  background: #f9f9f9; border-radius: 12px; padding-right: 8px;\n" +
+    "  background: var(--dwas-panel-bg); border-radius: 12px; padding-right: 8px;\n" +
     '  font-family: "Inter", sans-serif; font-size: 12px;\n' +
     "  box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 9998; display: none;\n" +
-    "  scrollbar-width: thin; scrollbar-color: #0073BB #f1f1f1; overscroll-behavior: contain;\n" +
+    "  scrollbar-width: thin; scrollbar-color: var(--dwas-ps-scroll-thumb) var(--dwas-ps-scroll-track); overscroll-behavior: contain;\n" +
     "}\n" +
     "#pageList::-webkit-scrollbar { width: 3px; }\n" +
-    "#pageList::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }\n" +
-    "#pageList::-webkit-scrollbar-thumb { background: #0073BB; border-radius: 3px; }\n" +
-    "#pageList::-webkit-scrollbar-thumb:hover { background: #005999; }\n" +
+    "#pageList::-webkit-scrollbar-track { background: var(--dwas-ps-scroll-track); border-radius: 3px; }\n" +
+    "#pageList::-webkit-scrollbar-thumb { background: var(--dwas-ps-scroll-thumb); border-radius: 3px; }\n" +
+    "#pageList::-webkit-scrollbar-thumb:hover { background: var(--dwas-ps-scroll-thumb-hover); }\n" +
     "@media (max-width: 768px) {\n" +
     "  .accessibility-panel, #pageList {\n" +
     "    width: auto; left: 12px; right: 12px;\n" +
@@ -275,39 +322,31 @@
     "  padding: 0; margin: 0; cursor: pointer;\n" +
     "}\n" +
     ".panel-header { display: flex; align-items: center; justify-content: space-between; width: 100%; }\n" +
-    ".panel-header h2 { margin: 0; font-size: 24px; font-weight: 500; color: #111; line-height: 28.8px; }\n" +
+    ".panel-header h2 { margin: 0; font-size: 24px; font-weight: 500; color: var(--dwas-text); line-height: 28.8px; }\n" +
     ".close-btn-acc {\n" +
     "  background: none; border: none; cursor: pointer;\n" +
     "  padding: 0; width: 24px; height: 24px;\n" +
-    "  color: #111; transition: color 0.2s ease;\n" +
+    "  color: var(--dwas-text); transition: color 0.2s ease;\n" +
     "}\n" +
-    ".close-btn-acc:hover { color: " +
-    BRAND +
-    "; }\n" +
+    ".close-btn-acc:hover { color: var(--dwas-brand); }\n" +
     ".panel-content { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; width: 100%; }\n" +
     ".reset-all-acc {\n" +
     "  align-self: flex-end; font-weight: 500;\n" +
-    "  color: " +
-    BRAND +
-    "; font-size: 16px;\n" +
+    "  color: var(--dwas-brand); font-size: 16px;\n" +
     "  cursor: pointer; transition: color 0.2s ease;\n" +
     "  display: flex; align-items: center; gap: 4px;\n" +
     "  background: none; border: none; padding: 0; margin: 0; font-family: inherit;\n" +
     "}\n" +
-    ".reset-all-acc .dwao-icon { color: " +
-    BRAND +
-    "; width: 20px; height: 20px; }\n" +
+    ".reset-all-acc .dwao-icon { color: var(--dwas-brand); width: 20px; height: 20px; }\n" +
     ".scroll-area { position: relative; width: 100%; max-height: calc(100vh - 200px); overflow-y: auto; padding-right: 8px; }\n" +
     ".scroll-area::-webkit-scrollbar { width: 3px; }\n" +
-    ".scroll-area::-webkit-scrollbar-track { background: #e9e6e6; }\n" +
-    ".scroll-area::-webkit-scrollbar-thumb { background: " +
-    BRAND +
-    "; border-radius: 2px; }\n" +
+    ".scroll-area::-webkit-scrollbar-track { background: var(--dwas-scroll-track); }\n" +
+    ".scroll-area::-webkit-scrollbar-thumb { background: var(--dwas-brand); border-radius: 2px; }\n" +
     ".accordion-container-acces { display: flex; flex-direction: column; gap: 20px; width: 100%; }\n" +
     "@media (max-width: 768px) { .accordion-container-acces { width: 100%; } }\n" +
     ".accordion-item-acces {\n" +
-    "  width: 100%; border: 1px solid rgba(17,17,17,0.2);\n" +
-    "  border-radius: 10px; padding: 20px 16px; background: white;\n" +
+    "  width: 100%; border: 1px solid var(--dwas-border);\n" +
+    "  border-radius: 10px; padding: 20px 16px; background: var(--dwas-surface);\n" +
     "  box-sizing: border-box !important;\n" +
     "}\n" +
     "@media (max-width: 768px) { .accordion-item-acces { width: 100%; padding: 14px 12px; } }\n" +
@@ -315,14 +354,10 @@
     "  display: flex; align-items: center; justify-content: space-between; min-height: 24px;\n" +
     "  width: 100%; background: none; border: none;\n" +
     "  cursor: pointer; font-size: 18px; font-weight: 400;\n" +
-    "  color: " +
-    BRAND +
-    "; padding: 0; transition: color 0.2s ease;\n" +
+    "  color: var(--dwas-brand); padding: 0; transition: color 0.2s ease;\n" +
     "}\n" +
-    ".accordion-trigger:hover { color: " +
-    BRAND +
-    "; }\n" +
-    ".accordion-icon { transition: transform 0.2s ease; color: #111; }\n" +
+    ".accordion-trigger:hover { color: var(--dwas-brand); }\n" +
+    ".accordion-icon { transition: transform 0.2s ease; color: var(--dwas-text); }\n" +
     ".accordion-item-acces.active .accordion-icon { transform: rotate(180deg); }\n" +
     ".accordion-content {\n" +
     "  max-height: 0; overflow: hidden; visibility: hidden;\n" +
@@ -335,8 +370,8 @@
     ".option-card {\n" +
     "  display: flex; flex-direction: column; align-items: center;\n" +
     "  justify-content: center; gap: 8px; padding: 12px 8px;\n" +
-    "  flex: 1; height: 98px; background: white;\n" +
-    "  border: 1px solid rgba(17,17,17,0.2); border-radius: 12px;\n" +
+    "  flex: 1; height: 98px; background: var(--dwas-surface);\n" +
+    "  border: 1px solid var(--dwas-border); border-radius: 12px;\n" +
     "  cursor: pointer; transition: all 0.2s cubic-bezier(0.4,0,0.2,1);\n" +
     "  position: relative; width: 100%; min-width: 0; box-sizing: border-box;\n" +
     "  margin: 0; font-family: inherit; color: inherit; -webkit-appearance: none; appearance: none;\n" +
@@ -349,28 +384,22 @@
     "  .accordion-content .options-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }\n" +
     "}\n" +
     ".option-card:hover {\n" +
-    "  border-color: " +
-    BRAND +
-    ";\n" +
-    "  box-shadow: 0 2px 8px rgba(102,61,179,0.1);\n" +
+    "  border-color: var(--dwas-brand);\n" +
+    "  box-shadow: 0 2px 8px var(--dwas-brand-tint);\n" +
     "  transform: translateY(-1px);\n" +
     "}\n" +
     ".option-card.active {\n" +
-    "  border-color: " +
-    BRAND +
-    "; background-color: " +
-    BRAND +
-    ";\n" +
-    "  box-shadow: 0 2px 8px rgba(102,61,179,0.1); transform: translateY(-1px);\n" +
+    "  border-color: var(--dwas-brand); background-color: var(--dwas-brand);\n" +
+    "  box-shadow: 0 2px 8px var(--dwas-brand-tint); transform: translateY(-1px);\n" +
     "}\n" +
-    ".option-card.active .option-label { color: #fff; }\n" +
-    ".option-card.active .dwao-icon { color: #fff; }\n" +
-    ".option-card.active svg { color: #fff; stroke: #fff; fill: none; }\n" +
+    ".option-card.active .option-label { color: var(--dwas-on-brand); }\n" +
+    ".option-card.active .dwao-icon { color: var(--dwas-on-brand); }\n" +
+    ".option-card.active svg { color: var(--dwas-on-brand); stroke: var(--dwas-on-brand); fill: none; }\n" +
     ".option-card.empty { display: none; }\n" +
-    ".option-card.empty:hover { border-color: rgba(17,17,17,0.2); box-shadow: none; transform: none; }\n" +
+    ".option-card.empty:hover { border-color: var(--dwas-border); box-shadow: none; transform: none; }\n" +
     ".option-card::before { background: linear-gradient(135deg, #00b29b, #0069f5); }\n" +
     ".option-label {\n" +
-    "  font-size: 14px; font-weight: 400; color: #111;\n" +
+    "  font-size: 14px; font-weight: 400; color: var(--dwas-text);\n" +
     "  text-align: center; line-height: 16.8px; max-width: 80px;\n" +
     "}\n" +
     ".option-label.multiline { line-height: 16.8px; }\n" +
@@ -380,30 +409,26 @@
     "}\n" +
     ".option-steps li {\n" +
     "  width: 8px; height: 8px; border-radius: 50%;\n" +
-    "  background-color: #ccc; transition: background-color 0.3s ease;\n" +
+    "  background-color: var(--dwas-step); transition: background-color 0.3s ease;\n" +
     "}\n" +
-    ".option-steps li.active { background-color: #000; }\n" +
-    ".option-card.active .option-steps li.active { background-color: #fff; }\n" +
+    ".option-steps li.active { background-color: var(--dwas-step-active); }\n" +
+    ".option-card.active .option-steps li.active { background-color: var(--dwas-on-brand); }\n" +
     ".accessibility-panel button:focus-visible, #accessibilityToggleBtn:focus-visible,\n" +
     ".screen-reader-popup button:focus-visible, .screen-reader-popup select:focus-visible,\n" +
     ".screen-reader-popup input:focus-visible, #pageList button:focus-visible,\n" +
-    "#keyboardWrapper button:focus-visible { outline: 2px solid " +
-    BRAND +
-    " !important; outline-offset: 2px; }\n" +
+    "#keyboardWrapper button:focus-visible { outline: 2px solid var(--dwas-brand) !important; outline-offset: 2px; }\n" +
     ".as-card-content .dwao-ps-item {\n" +
     "  display: block; width: 100%; padding: 0; margin: 0; border: none; background: none;\n" +
     "  font: inherit; color: inherit; text-align: left; cursor: pointer;\n" +
     "}\n" +
-    ".dwao-ps-close { position: absolute; top: 14px; right: 14px; padding: 0; border: none; background: none; cursor: pointer; color: #fff; }\n" +
+    ".dwao-ps-close { position: absolute; top: 14px; right: 14px; padding: 0; border: none; background: none; cursor: pointer; color: var(--dwas-on-brand); }\n" +
     ".card-content { padding: 24px 20px 20px; display: flex; flex-direction: column; gap: 16px; }\n" +
     ".as-card-content { padding: 0; margin: 0; list-style: none; }\n" +
     ".as-card-content li {\n" +
-    "  border-bottom: 1px solid " +
-    BRAND +
-    ";\n" +
+    "  border-bottom: 1px solid var(--dwas-brand);\n" +
     "  padding: 10px; list-style: none; cursor: pointer;\n" +
     "}\n" +
-    ".as-card-content li:hover { background: rgba(0,0,0,0.05); }\n" +
+    ".as-card-content li:hover { background: var(--dwas-ps-item-hover); }\n" +
     ".as-card-content li.h1 { padding-left: 10px; }\n" +
     ".as-card-content li.h2 { padding-left: 10px; }\n" +
     ".as-card-content li.h3 { padding-left: 10px; }\n" +
@@ -412,9 +437,7 @@
     ".as-card-content li.h6 { padding-left: 10px; }\n" +
     "#pageList .page-structure-header {\n" +
     "  font-size: 18px; margin: 0; padding: 16px;\n" +
-    "  color: #fff; background: " +
-    BRAND +
-    ";\n" +
+    "  color: var(--dwas-on-brand); background: var(--dwas-brand);\n" +
     "}\n" +
     "/* Color/contrast filters applied to <html> */\n" +
     ".high-contrast-vi { filter: saturate(3); }\n" +
@@ -434,8 +457,8 @@
     ) +
     '"), auto !important;\n' +
     "}\n" +
-    ".highlight-links a { outline: 2px dashed #f00 !important; background: #ffff99 !important; }\n" +
-    ".skip-link { position: fixed; top: 0; left: 0; background: #000; color: #fff; padding: 8px; z-index: 10001; }\n" +
+    ".highlight-links a { outline: 2px dashed var(--dwas-highlight-link-outline) !important; background: var(--dwas-highlight-link-bg) !important; }\n" +
+    ".skip-link { position: fixed; top: 0; left: 0; background: var(--dwas-skip-link-bg); color: var(--dwas-skip-link-text); padding: 8px; z-index: 10001; }\n" +
     '.big-buttons button, .big-buttons input[type="submit"], .big-buttons a { transform: scale(1.06); }\n' +
     ".disable-animation, .disable-animation * { animation: none !important; transition: none !important; }\n" +
     "#ariaAlertRegion { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }\n" +
@@ -463,8 +486,8 @@
     "/* Image description tooltip */\n" +
     ".img-alt-tooltip {\n" +
     "  position: fixed !important;\n" +
-    "  background: rgba(15,23,42,0.98) !important;\n" +
-    "  color: white !important; padding: 14px 18px !important;\n" +
+    "  background: var(--dwas-tooltip-bg) !important;\n" +
+    "  color: var(--dwas-tooltip-text) !important; padding: 14px 18px !important;\n" +
     "  border-radius: 12px !important; font-size: 15px !important;\n" +
     "  max-width: 400px !important; min-width: 200px !important;\n" +
     "  word-wrap: break-word !important;\n" +
@@ -479,23 +502,21 @@
     "/* Screen reader popup */\n" +
     ".screen-reader-popup {\n" +
     "  position: fixed; bottom: 20px; right: 20px; max-width: 360px; width: 90%;\n" +
-    "  background: #fff; border-radius: 12px; padding: 20px 24px;\n" +
+    "  background: var(--dwas-surface); border-radius: 12px; padding: 20px 24px;\n" +
     "  box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 9999;\n" +
     "  font-family: inherit; display: none;\n" +
     "}\n" +
-    ".screen-reader-popup h2 { font-size: 18px; margin: 0 0 8px; color: " +
-    BRAND +
-    "; font-weight: 600; }\n" +
-    ".screen-reader-popup p { font-size: 13px; margin: 0 0 12px; color: #444; }\n" +
+    ".screen-reader-popup h2 { font-size: 18px; margin: 0 0 8px; color: var(--dwas-brand); font-weight: 600; }\n" +
+    ".screen-reader-popup p { font-size: 13px; margin: 0 0 12px; color: var(--dwas-popup-text); }\n" +
     ".screen-reader-popup .close-popup {\n" +
     "  position: absolute; top: 6px; right: 14px;\n" +
     "  background: none; border: none; font-size: 20px;\n" +
-    "  cursor: pointer; color: #666;\n" +
+    "  cursor: pointer; color: var(--dwas-popup-close);\n" +
     "}\n" +
-    ".screen-reader-popup label { display: block; margin-top: 10px; font-weight: 600; font-size: 13px; color: #222; }\n" +
+    ".screen-reader-popup label { display: block; margin-top: 10px; font-weight: 600; font-size: 13px; color: var(--dwas-popup-label); }\n" +
     ".screen-reader-popup .voice-select {\n" +
     "  width: 100%; padding: 6px 8px; margin-top: 4px;\n" +
-    "  border: 1px solid #ccd6e8; border-radius: 6px; font-size: 13px;\n" +
+    "  border: 1px solid var(--dwas-input-border); border-radius: 6px; font-size: 13px;\n" +
     "}\n" +
     '.screen-reader-popup input[type="range"] {\n' +
     "  width: 100%; height: 24px; margin-top: 4px; appearance: auto;\n" +
@@ -503,30 +524,22 @@
     "  color: light-dark(rgb(16, 16, 16), rgb(255, 255, 255));\n" +
     "  padding: initial;\n" +
     "  border: initial;\n" +
-    "  margin: 2px; accent-color: " +
-    BRAND +
-    ";\n" +
+    "  margin: 2px; accent-color: var(--dwas-brand);\n" +
     "}\n" +
     ".screen-reader-popup .reader-controls {\n" +
     "  margin-top: 16px; display: flex; gap: 8px;\n" +
     "}\n" +
     ".screen-reader-popup .reader-controls button {\n" +
     "  flex: 1; padding: 8px; font-size: 13px; border-radius: 6px;\n" +
-    "  cursor: pointer; background: transparent; color: #333;\n" +
-    "  font-weight: 500; border: 1px solid " +
-    BRAND +
-    ";\n" +
+    "  cursor: pointer; background: transparent; color: var(--dwas-popup-button-text);\n" +
+    "  font-weight: 500; border: 1px solid var(--dwas-brand);\n" +
     "}\n" +
     ".screen-reader-popup .reader-controls button.primary {\n" +
-    "  background: " +
-    BRAND +
-    "; color: #fff;\n" +
+    "  background: var(--dwas-brand); color: var(--dwas-on-brand);\n" +
     "}\n" +
     ".speak-highlight {\n" +
-    "  outline: 2px solid " +
-    BRAND +
-    " !important;\n" +
-    "  background-color: rgba(102,61,179,0.1) !important;\n" +
+    "  outline: 2px solid var(--dwas-brand) !important;\n" +
+    "  background-color: var(--dwas-brand-tint) !important;\n" +
     "}\n" +
     "/* ADHD reading line overlay */\n" +
     "#adhd-line-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 9997; pointer-events: none; }\n" +
@@ -534,28 +547,26 @@
     "#text-magnifier-lens {\n" +
     "  position: fixed; pointer-events: auto; z-index: 99999;\n" +
     "  min-width: 80px; max-width: 320px;\n" +
-    "  background: rgba(255,255,255,0.98);\n" +
+    "  background: var(--dwas-lens-bg);\n" +
     "  box-shadow: 0 8px 32px rgba(0,0,0,0.22);\n" +
-    "  border: 2.5px solid " +
-    BRAND +
-    ";\n" +
+    "  border: 2.5px solid var(--dwas-brand);\n" +
     "  display: none; font-size: 1.4em;\n" +
-    "  padding: 15px 40px 15px 15px; color: #222;\n" +
+    "  padding: 15px 40px 15px 15px; color: var(--dwas-lens-text);\n" +
     "  border-radius: 6px; line-height: 1.2;\n" +
     "}\n" +
     "/* Virtual keyboard */\n" +
     "#keyboardWrapper {\n" +
     "  position: fixed; bottom: 20px; left: 50%;\n" +
-    "  transform: translateX(-50%); background: #f9f9f9;\n" +
-    "  border: 2px solid #ccc; border-radius: 10px;\n" +
+    "  transform: translateX(-50%); background: var(--dwas-panel-bg);\n" +
+    "  border: 2px solid var(--dwas-keyboard-border); border-radius: 10px;\n" +
     "  box-shadow: 0 4px 12px rgba(0,0,0,0.2);\n" +
     "  padding: 20px; z-index: 1111111; max-width: 600px;\n" +
     "  width: 95%; display: none; cursor: move;\n" +
     "}\n" +
     ".virtual-key {\n" +
     "  margin: 4px; padding: 10px 14px; font-size: 14px;\n" +
-    "  cursor: pointer; border: 1px solid #aaa;\n" +
-    "  border-radius: 4px; background: #fff;\n" +
+    "  cursor: pointer; border: 1px solid var(--dwas-key-border);\n" +
+    "  border-radius: 4px; background: var(--dwas-surface);\n" +
     "}\n" +
     "@media (max-width: 400px) {\n" +
     "  .accessibility-panel { left: 8px; right: 8px; padding: 12px; }\n" +
@@ -925,7 +936,7 @@
     chevron.className = "accordion-icon";
     chevron.style.width = "15px";
     chevron.style.height = "15px";
-    chevron.style.color = "#111";
+    chevron.style.color = "var(--dwas-text)";
 
     var contentId = "dwao-acc-" + section.id;
     var trigger = createEl(
@@ -977,7 +988,7 @@
   var closeIcon = svgIcon("close");
   closeIcon.style.width = "20px";
   closeIcon.style.height = "20px";
-  closeIcon.style.color = "#111";
+  closeIcon.style.color = "var(--dwas-text)";
 
   var header = createEl("div", { class: "panel-header" }, [
     createEl("h2", { id: "dwao-a11y-panel-title", text: "Accessibility" }),
@@ -1125,7 +1136,7 @@
     ) {
       toggleBtn.textContent = "";
       var btnIcon = svgIcon("blindness");
-      btnIcon.style.color = "#fff";
+      btnIcon.style.color = "var(--dwas-on-brand)";
       btnIcon.style.width = "18px";
       btnIcon.style.height = "18px";
       toggleBtn.appendChild(btnIcon);
@@ -1437,7 +1448,7 @@
           createEl("style", {
             id: "dwao-skip-link-style",
             text:
-              ".dwao-skip-link{position:absolute;left:-9999px;top:0;background:#000;color:#fff;" +
+              ".dwao-skip-link{position:absolute;left:-9999px;top:0;background:var(--dwas-skip-link-bg);color:var(--dwas-skip-link-text);" +
               "padding:10px 16px;z-index:2147483647;border-radius:0 0 6px 0;font:14px/1.4 system-ui,sans-serif;" +
               "text-decoration:none}" +
               ".dwao-skip-link:focus{left:8px;top:8px;border-radius:6px}",
@@ -1993,15 +2004,15 @@
 
     var topOv = document.createElement("div");
     topOv.style.cssText =
-      "position:fixed;top:0;left:0;width:100%;height:0;background:rgba(0,0,0,0.7);z-index:1001;";
+      "position:fixed;top:0;left:0;width:100%;height:0;background:var(--dwas-reading-mask);z-index:1001;";
 
     var line = document.createElement("div");
     line.style.cssText =
-      "position:fixed;width:100vw;height:3px;background:#000;z-index:1002;";
+      "position:fixed;width:100vw;height:3px;background:var(--dwas-reading-line);z-index:1002;";
 
     var botOv = document.createElement("div");
     botOv.style.cssText =
-      "position:fixed;top:0;left:0;width:100%;height:0;background:rgba(0,0,0,0.7);z-index:1001;";
+      "position:fixed;top:0;left:0;width:100%;height:0;background:var(--dwas-reading-mask);z-index:1001;";
 
     overlay.appendChild(topOv);
     overlay.appendChild(line);
@@ -2278,7 +2289,7 @@
         var closeBtn = document.createElement("div");
         closeBtn.textContent = "✖";
         closeBtn.style.cssText =
-          "position:absolute;top:6px;right:10px;cursor:pointer;font-size:18px;font-weight:bold;color:#555;user-select:none;";
+          "position:absolute;top:6px;right:10px;cursor:pointer;font-size:18px;font-weight:bold;color:var(--dwas-lens-close);user-select:none;";
         closeBtn.addEventListener("click", function (e) {
           e.stopPropagation();
           lens.style.display = "none";
@@ -2399,7 +2410,7 @@
       });
 
       var closeIconPs = svgIcon("close");
-      closeIconPs.style.color = "#fff";
+      closeIconPs.style.color = "var(--dwas-on-brand)";
       var closeBtn = createEl(
         "button",
         {
@@ -2437,13 +2448,13 @@
         emptyState.style.cssText =
           "display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:14px;text-align:center;";
         emptyState.innerHTML =
-          '<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="none" stroke="#aaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">' +
+          '<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="none" stroke="currentColor" style="color:var(--dwas-ps-empty-icon)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">' +
           '<circle cx="12" cy="12" r="10"/>' +
           '<path d="M8 15s1.5-2 4-2 4 2 4 2"/>' +
           '<line x1="9" y1="9" x2="9.01" y2="9"/>' +
           '<line x1="15" y1="9" x2="15.01" y2="9"/>' +
           "</svg>" +
-          '<p style="font-size:13px;color:#595959;margin:0;line-height:1.6;">No headings were found on this page, so there is no page structure to show.</p>';
+          '<p style="font-size:13px;color:var(--dwas-ps-empty-text);margin:0;line-height:1.6;">No headings were found on this page, so there is no page structure to show.</p>';
         pl.appendChild(emptyState);
       } else {
         var list = createEl("ul", { class: "as-card-content" });
@@ -2504,7 +2515,7 @@
     closeBtn.setAttribute("aria-label", "Close virtual keyboard");
     closeBtn.textContent = "✖";
     closeBtn.style.cssText =
-      "position:absolute;top:2px;right:10px;font-size:18px;cursor:pointer;border:none;background:transparent;color:#888;";
+      "position:absolute;top:2px;right:10px;font-size:18px;cursor:pointer;border:none;background:transparent;color:var(--dwas-keyboard-close);";
     closeBtn.onclick = function () {
       kbWrap.style.display = "none";
       var c = document.querySelector('.option-card[datakey="virtualKeyboard"]');
@@ -2523,7 +2534,7 @@
       b.type = "button";
       b.className = "dwao-vk-move";
       b.style.cssText =
-        "padding:6px 12px;font-size:13px;cursor:pointer;border:1px solid #aaa;border-radius:4px;background:#fff;";
+        "padding:6px 12px;font-size:13px;cursor:pointer;border:1px solid var(--dwas-key-border);border-radius:4px;background:var(--dwas-surface);";
       b.textContent = m.label;
       b.onclick = function () {
         kbWrap.style.left = "50%";
@@ -2538,7 +2549,7 @@
     var kbContainer = document.createElement("div");
     kbContainer.id = "virtualKeyboard";
     kbContainer.style.cssText =
-      "background:#eee;padding:10px;display:inline-block;width:100%;";
+      "background:var(--dwas-keyboard-bg);padding:10px;display:inline-block;width:100%;";
     kbWrap.appendChild(kbContainer);
 
     var layout = [

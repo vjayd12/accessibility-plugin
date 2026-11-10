@@ -188,6 +188,27 @@ Those fixes are only practical when the site manages its colours centrally:
 
 ---
 
+## Customising Colours
+
+Every colour the widget uses is a CSS variable named `--dwas-*`, defined in one block at the top of the widget's CSS (search `init.js` for `Colour tokens`). To change a colour, set the variable in your own stylesheet on `:root`. No change to the widget file is needed, and your values win whatever order the stylesheets load in.
+
+```css
+:root {
+  --dwas-brand: #0c73b4;      /* button, headings, active cards, focus outline */
+  --dwas-on-brand: #ffffff;   /* text and icons on the brand colour */
+  --dwas-panel-bg: #f9f9f9;   /* panel, Page Structure and keyboard background */
+  --dwas-surface: #ffffff;    /* cards, sections and the Read Page popup */
+  --dwas-text: #111111;       /* panel text and icons */
+  --dwas-border: rgba(17,17,17,0.2);
+}
+```
+
+These six cover the panel and button. The full list in the widget file also covers Page Structure (`--dwas-ps-*`), the Read Page popup (`--dwas-popup-*`), the virtual keyboard (`--dwas-keyboard-*`, `--dwas-key-border`), the image tooltip and Text Zoom lens (`--dwas-tooltip-*`, `--dwas-lens-*`) and the features applied to the page (`--dwas-highlight-link-*`, `--dwas-skip-link-*`, `--dwas-reading-*`).
+
+> **Keep the contrast.** `data-brand-color` darkens a brand colour that is too light for white text; a colour set with `--dwas-brand` is used exactly as given. Choose values that reach 4.5:1 for text (for example `--dwas-brand` against `--dwas-on-brand` and against `--dwas-panel-bg`).
+
+---
+
 ## Security, Privacy & CSP
 
 - No network requests, no cookies, no external fonts or images.
