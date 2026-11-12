@@ -14,6 +14,8 @@ A self-contained, zero-dependency JavaScript widget (`init.js`) that adds an acc
 | -------------------------- | ------------------------------------------------------------------------------------------- |
 | `init.js`                  | The widget script. Copy it into a static folder of your web application (not `WEB-INF/`).  |
 | `accessibility-widget.jsp` | The button markup and script tag, ready to include in your pages.                          |
+| `integration-guide-jsp.html` | This document (HTML version).                                                           |
+| `test-page.html`           | A sample page for checking every feature in a browser. Open it straight from the folder.   |
 
 ---
 
@@ -123,7 +125,7 @@ Set these `data-*` attributes on the widget's script tag in `accessibility-widge
 | Attribute          | Values                                                                              | Default       | Description                                                                |
 | ------------------ | ----------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
 | `data-position`    | `bottom-left`, `bottom-right`, `top-left`, `top-right`                              | `bottom-right`| Where the button and panel appear                                          |
-| `data-theme`       | `default` (#007abc), `purple` (#663db3), `blue` (#0073BB), `green` (#00875A)        | `default`     | Accent colour                                                              |
+| `data-theme`       | `default` (#003974, Kotak Prime), `purple` (#663db3), `blue` (#0073BB), `green` (#00875A)        | `default`     | Accent colour                                                              |
 | `data-brand-color` | Hex colour, e.g. `#e63946`                                                          | —             | Overrides `data-theme`. Non-hex values are ignored.                        |
 | `data-page-lang`   | BCP 47 code, e.g. `en`, `en-IN`, `hi`                                               | —             | Language of your page content. Used only if `<html>` has no `lang`.        |
 | `data-lang`        | `en`                                                                                | `en`          | Reserved. The panel is English-only in v2.0.0 and this has no effect.      |
@@ -158,15 +160,23 @@ Those fixes are only practical when the site manages its colours centrally:
 
 ## Customising Colours
 
+This build of the widget already uses Kotak Prime's brand colours, so no colour setup is needed:
+
+| Brand colour | Value | Used for in the widget |
+|---|---|---|
+| Background-1 (white) | `#fcfcfc` | Cards, sections, Read Page popup, keyboard keys, Text Zoom lens; text on the blue button and active cards |
+| Background-2 (grey) | `#f5f5f5` | Panel, Page Structure and keyboard backgrounds |
+| Text & Icons (blue) | `#003974` | All widget text and icons, the Accessibility button, headings, active cards, focus outline |
+
 Every colour the widget uses is a CSS variable named `--dwas-*`, defined in one block at the top of the widget's CSS (search `init.js` for `Colour tokens`). To change a colour, set the variable in your own stylesheet on `:root`. No change to the widget file is needed, and your values win whatever order the stylesheets load in.
 
 ```css
 :root {
-  --dwas-brand: #0c73b4;      /* button, headings, active cards, focus outline */
-  --dwas-on-brand: #ffffff;   /* text and icons on the brand colour */
-  --dwas-panel-bg: #f9f9f9;   /* panel, Page Structure and keyboard background */
-  --dwas-surface: #ffffff;    /* cards, sections and the Read Page popup */
-  --dwas-text: #111111;       /* panel text and icons */
+  --dwas-brand: #003974;      /* button, headings, active cards, focus outline */
+  --dwas-on-brand: #fcfcfc;   /* text and icons on the brand colour */
+  --dwas-panel-bg: #f5f5f5;   /* panel, Page Structure and keyboard background */
+  --dwas-surface: #fcfcfc;    /* cards, sections and the Read Page popup */
+  --dwas-text: #003974;       /* panel text and icons */
   --dwas-border: rgba(17,17,17,0.2);
 }
 ```

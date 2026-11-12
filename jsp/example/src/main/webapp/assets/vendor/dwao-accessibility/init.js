@@ -30,13 +30,13 @@
     purple: "#663db3",
     blue: "#0073BB",
     green: "#00875A",
-    default: "#007abc",
+    default: "#003974",
   };
   // Only accept a hex colour so data-brand-color can't inject CSS
   var BRAND =
     (/^#[0-9a-f]{3,8}$/i.test(CONFIG.brandColor) && CONFIG.brandColor) ||
     THEME_COLORS[CONFIG.theme] ||
-    "#007abc";
+    "#003974";
 
   // BRAND is used for text on the #f9f9f9 panel and behind white text, so
   // darken it until it reaches 4.5:1 against #f9f9f9 (WCAG 1.4.3).
@@ -238,39 +238,39 @@
     "  --dwas-brand: " +
     BRAND +
     ";\n" +
-    "  --dwas-on-brand: #fff;\n" +
-    "  --dwas-brand-tint: rgba(102,61,179,0.1);\n" +
-    "  --dwas-panel-bg: #f9f9f9;\n" +
-    "  --dwas-surface: #fff;\n" +
-    "  --dwas-text: #111;\n" +
+    "  --dwas-on-brand: #fcfcfc;\n" +
+    "  --dwas-brand-tint: rgba(0,57,116,0.08);\n" +
+    "  --dwas-panel-bg: #f5f5f5;\n" +
+    "  --dwas-surface: #fcfcfc;\n" +
+    "  --dwas-text: #003974;\n" +
     "  --dwas-border: rgba(17,17,17,0.2);\n" +
     "  --dwas-step: #ccc;\n" +
-    "  --dwas-step-active: #000;\n" +
-    "  --dwas-scroll-track: #e9e6e6;\n" +
+    "  --dwas-step-active: #003974;\n" +
+    "  --dwas-scroll-track: #f5f5f5;\n" +
     "  /* Page Structure */\n" +
-    "  --dwas-ps-scroll-thumb: #0073BB;\n" +
-    "  --dwas-ps-scroll-thumb-hover: #005999;\n" +
-    "  --dwas-ps-scroll-track: #f1f1f1;\n" +
+    "  --dwas-ps-scroll-thumb: #003974;\n" +
+    "  --dwas-ps-scroll-thumb-hover: #003974;\n" +
+    "  --dwas-ps-scroll-track: #f5f5f5;\n" +
     "  --dwas-ps-item-hover: rgba(0,0,0,0.05);\n" +
-    "  --dwas-ps-empty-text: #595959;\n" +
-    "  --dwas-ps-empty-icon: #aaa;\n" +
+    "  --dwas-ps-empty-text: #003974;\n" +
+    "  --dwas-ps-empty-icon: #003974;\n" +
     "  /* Read Page popup */\n" +
-    "  --dwas-popup-text: #444;\n" +
-    "  --dwas-popup-label: #222;\n" +
-    "  --dwas-popup-close: #666;\n" +
-    "  --dwas-popup-button-text: #333;\n" +
+    "  --dwas-popup-text: #003974;\n" +
+    "  --dwas-popup-label: #003974;\n" +
+    "  --dwas-popup-close: #003974;\n" +
+    "  --dwas-popup-button-text: #003974;\n" +
     "  --dwas-input-border: #ccd6e8;\n" +
     "  /* Virtual keyboard */\n" +
-    "  --dwas-keyboard-bg: #eee;\n" +
+    "  --dwas-keyboard-bg: #f5f5f5;\n" +
     "  --dwas-keyboard-border: #ccc;\n" +
     "  --dwas-key-border: #aaa;\n" +
-    "  --dwas-keyboard-close: #888;\n" +
+    "  --dwas-keyboard-close: #003974;\n" +
     "  /* Image Description tooltip and Text Zoom lens */\n" +
-    "  --dwas-tooltip-bg: rgba(15,23,42,0.98);\n" +
-    "  --dwas-tooltip-text: #fff;\n" +
-    "  --dwas-lens-bg: rgba(255,255,255,0.98);\n" +
-    "  --dwas-lens-text: #222;\n" +
-    "  --dwas-lens-close: #555;\n" +
+    "  --dwas-tooltip-bg: #003974;\n" +
+    "  --dwas-tooltip-text: #fcfcfc;\n" +
+    "  --dwas-lens-bg: #fcfcfc;\n" +
+    "  --dwas-lens-text: #003974;\n" +
+    "  --dwas-lens-close: #003974;\n" +
     "  /* Features applied to the page */\n" +
     "  --dwas-highlight-link-outline: #f00;\n" +
     "  --dwas-highlight-link-bg: #ffff99;\n" +

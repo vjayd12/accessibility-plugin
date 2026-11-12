@@ -47,6 +47,14 @@
 <td><code>accessibility-widget.jsp</code></td>
 <td>The button markup and script tag, ready to include in your pages.</td>
 </tr>
+<tr>
+<td><code>integration-guide-jsp.html</code></td>
+<td>This document.</td>
+</tr>
+<tr>
+<td><code>test-page.html</code></td>
+<td>A sample page for checking every feature and automatic fix in a browser. Open it straight from the unzipped folder; no server is needed.</td>
+</tr>
 </tbody></table>
 <h2>Project Structure — Files to Add or Modify</h2>
 <pre><code>src/main/webapp/                          ← WebContent/ in Eclipse Dynamic Web Projects
@@ -127,7 +135,7 @@ window.DWAOAccessibility &amp;&amp; window.DWAOAccessibility.reinit();
 </tr>
 <tr>
 <td><code>data-theme</code></td>
-<td><code>default</code> (#007abc), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td>
+<td><code>default</code> (#003974, Kotak Prime), <code>purple</code> (#663db3), <code>blue</code> (#0073BB), <code>green</code> (#00875A)</td>
 <td><code>default</code></td>
 <td>Accent colour</td>
 </tr>
@@ -170,13 +178,38 @@ window.DWAOAccessibility &amp;&amp; window.DWAOAccessibility.reinit();
 <p class="note">Without this, colour contrast changes are hard to implement, easy to miss and easily undone by later releases.</p>
 
 <h2>Customising Colours</h2>
+<p>This build of the widget already uses Kotak Prime's brand colours, so no colour setup is needed:</p>
+<table>
+<thead>
+<tr>
+<th scope="col">Brand colour</th>
+<th scope="col">Value</th>
+<th scope="col">Used for in the widget</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Background-1 (white)</td>
+<td><code>#fcfcfc</code></td>
+<td>Cards, sections, Read Page popup, keyboard keys, Text Zoom lens; text on the blue button and active cards</td>
+</tr>
+<tr>
+<td>Background-2 (grey)</td>
+<td><code>#f5f5f5</code></td>
+<td>Panel, Page Structure and keyboard backgrounds</td>
+</tr>
+<tr>
+<td>Text &amp; Icons (blue)</td>
+<td><code>#003974</code></td>
+<td>All widget text and icons, the Accessibility button, headings, active cards, focus outline</td>
+</tr>
+</tbody></table>
 <p>Every colour the widget uses is a CSS variable named <code>--dwas-*</code>, defined in one block at the top of the widget's CSS (search <code>init.js</code> for <code>Colour tokens</code>). To change a colour, set the variable in your own stylesheet on <code>:root</code>. No change to the widget file is needed, and your values win whatever order the stylesheets load in.</p>
 <pre><code>:root {
-  --dwas-brand: #0c73b4;      /* button, headings, active cards, focus outline */
-  --dwas-on-brand: #ffffff;   /* text and icons on the brand colour */
-  --dwas-panel-bg: #f9f9f9;   /* panel, Page Structure and keyboard background */
-  --dwas-surface: #ffffff;    /* cards, sections and the Read Page popup */
-  --dwas-text: #111111;       /* panel text and icons */
+  --dwas-brand: #003974;      /* button, headings, active cards, focus outline */
+  --dwas-on-brand: #fcfcfc;   /* text and icons on the brand colour */
+  --dwas-panel-bg: #f5f5f5;   /* panel, Page Structure and keyboard background */
+  --dwas-surface: #fcfcfc;    /* cards, sections and the Read Page popup */
+  --dwas-text: #003974;       /* panel text and icons */
   --dwas-border: rgba(17,17,17,0.2);
 }</code></pre>
 <p>These six cover the panel and button. The full list in the widget file also covers Page Structure (<code>--dwas-ps-*</code>), the Read Page popup (<code>--dwas-popup-*</code>), the virtual keyboard (<code>--dwas-keyboard-*</code>, <code>--dwas-key-border</code>), the image tooltip and Text Zoom lens (<code>--dwas-tooltip-*</code>, <code>--dwas-lens-*</code>) and the features applied to the page (<code>--dwas-highlight-link-*</code>, <code>--dwas-skip-link-*</code>, <code>--dwas-reading-*</code>).</p>
